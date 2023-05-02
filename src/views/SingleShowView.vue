@@ -1,26 +1,26 @@
 <template>
   <div class="single-show-view">
     <img class="image" :src="image">
-    <div class="items">
-      <h1 class="title">TITLE 1234556</h1>
+    <div class="items" v-if="show">
+      <h1 class="big-title title">{{ show.title }}</h1>
       <div class="list-view">
         <p class="title">Seasons:</p>
         <hr>
-        <div class="list-items">
-          <div class="item-wrapper" v-for="season in seasons" :key="'season-' + season.id">
-            <p :class="'item ' + seasonClass(season.id)" @click="() => selectSeason(season.id)">{{ season.number }}</p>
-            <div :class="'status ' + seasonStatusClass(season.id)" @click="() => toggleWatchedSeason(season.id)"></div>
+        <div class="list-items seasons">
+          <div class="item-wrapper" v-for="season in show.seasons" :key="'season-' + season.id">
+            <p :class="'item ' + seasonClass(season.id)" @click="selectSeason(season.id)">{{ season.number }} {{ season.title ? ' - ' + season.title : '' }}</p>
+            <div :class="'status ' + seasonStatusClass(season.id)" @click="toggleWatchedSeason(season.id)"></div>
           </div>
         </div>
       </div>
       <div class="list-view" v-show="currentEpisodes.length > 0">
         <p class="title">Episodes:</p>
         <hr>
-        <div class="list-items">
+        <div class="list-items episodes">
           <transition-group name="fade">
-            <div class="item-wrapper" v-for="ep, index in currentEpisodes" :key="index">
-              <p :class="'item ' + episodeClass(ep.id)" @click="() => selectEpisode(ep.id)">{{ ep.title }}</p>
-              <div :class="'status ' + episodeStatusClass(ep.id)" @click="() => toggleWatchedEpisode(ep.id)"></div>
+            <div class="item-wrapper" v-for="ep in currentEpisodes" :key="'episode-' + ep.id">
+              <p :class="'item ' + episodeClass(ep.id)" @click="selectEpisode(ep.id)">{{ ep.number }} - {{ (ep.title) ? ep.title : ep.filename }}</p>
+              <div :class="'status ' + episodeStatusClass(ep.id)" @click="toggleWatchedEpisode(selectedSeason, ep.id)"></div>
             </div>
           </transition-group>
         </div>
@@ -48,20 +48,21 @@ export default {
 
   },
   methods: {
-    selectEpisode(episode) {
-      this.selectedEpisode = episode;
+    selectEpisode(episodeId) {
+      this.selectedEpisode = episodeId;
     },
-    selectSeason(season) {
-      this.selectedSeason = season;
+    selectSeason(seasonId) {
+      if (this.selectedSeason == seasonId) this.selectedSeason = null;
+      else this.selectedSeason = seasonId;
     },
-    seasonClass(season) {
-      return this.selectedSeason == season ? "active" : "";
+    seasonClass(seasonId) {
+      return this.selectedSeason == seasonId ? "active" : "";
     },
-    episodeClass(ep) {
-      return this.selectedEpisode == ep ? "active" : "";
+    episodeClass(episodeId) {
+      return this.selectedEpisode == episodeId ? "active" : "";
     },
-    seasonStatusClass(season) {
-      let episodesInSeason = this.episodes.filter(e => e.season_id == season);
+    seasonStatusClass(seasonId) {
+      let episodesInSeason = this.seasonEpisodes(seasonId);
       let watched = true;
       for (let e of episodesInSeason) {
         if (!this.episodeStatusClass(e.id)) {
@@ -71,56 +72,63 @@ export default {
       }
       return watched ? "watched" : "";
     },
-    episodeStatusClass(episode) {
-      return this.watchedEpisodes.find(ep => ep.id == episode) ? "watched" : "";
+    episodeStatusClass(episodeId) {
+      return this.watchedEpisodes.find(ep => ep.id == episodeId) ? "watched" : "";
     },
-    toggleWatchedSeason(season) {
-      let found = this.seasonStatusClass(season);
-      let episodesInSeason = this.episodes.filter(e => e.season_id == season);
-      if (found) {
+    toggleWatchedSeason(seasonId) {
+      let foundWatchedStatus = this.seasonStatusClass(seasonId);
+      let episodesInSeason = this.seasonEpisodes(seasonId).filter(e => e.season_id == seasonId);
+      if (foundWatchedStatus) {
         // -> Not watched
         for (let e of episodesInSeason) {
           if (this.episodeStatusClass(e.id)) {
-            this.toggleWatchedEpisode(e.id);
+            this.toggleWatchedEpisode(seasonId, e.id);
           }
         }
       } else {
         // -> Watched
-        let toAdd = { ...this.seasons.find(s => s.id == season) };
         for (let e of episodesInSeason) {
           if (!this.episodeStatusClass(e.id)) {
-            this.toggleWatchedEpisode(e.id);
+            this.toggleWatchedEpisode(seasonId, e.id);
           }
         }
       }
     },
-    toggleWatchedEpisode(episode) {
-      let found = this.watchedEpisodes.find(e => e.id == episode)
+    toggleWatchedEpisode(seasonId, episodeId) {
+      let found = this.watchedEpisodes.find(e => e.id == episodeId && e.season_id == seasonId)
       if (found) {
         let index = this.watchedEpisodes.indexOf(found);
         this.watchedEpisodes.splice(index, 1);
       } else {
-        let toAdd = { ...this.episodes.find(e => e.id == episode) };
+        let toAdd = { ...this.seasonEpisodes(seasonId).find(e => e.id == episodeId && e.season_id == seasonId) };
         this.watchedEpisodes.push(toAdd);
       }
+    },
+    seasonEpisodes(seasonId) {
+      return this.show.seasons.filter(s => s.id == seasonId)[0].episodes;
     },
   },
   computed: {
     currentSeason() {
-      return this.seasons.find(season => season.id == this.selectedSeason);
+      return this.show.seasons.find(season => season.id == this.selectedSeason);
     },
     currentEpisodes() {
-      return this.episodes.filter(ep => ep.season_id == this.selectedSeason)
+      return (this.currentSeason) ? this.currentSeason.episodes : [];
     },
     calculateProgress() {
-      let episodeCount = this.episodes.length;
-      let watched = this.watchedEpisodes.length;
+      let episodeCount = (this.selectedSeason) ? this.currentEpisodes.length : this.show.seasons.reduce((current, season) => current + season.episodes.length, 0);
+      let watched = (this.selectedSeason) ? this.watchedEpisodes.filter(episode => episode.season_id == this.selectedSeason).length : this.watchedEpisodes.length;
       return Math.round(watched / episodeCount * 100);
     }
   },
-  created() {
+  async created() {
     this.id = this.$route.params.id;
-    this.image = this.coverImage ? this.coverImage : require("@/assets/images/template-cover.jpg");
+    this.image = require("@/assets/images/template-cover.jpg");
+
+    await this.$store.dispatch("show/getShow", this.id)
+    let show = this.$store.getters['show/show'];
+    this.show = show;
+    if (this.show.cover_images.length > 0) this.image = 'data:image/*;base64,' + this.show.cover_images[0].cover_image;
   },
   data() {
     return {
@@ -129,8 +137,7 @@ export default {
       selectedSeason: null,
       selectedEpisode: null,
       watchedEpisodes: [],
-      seasons: [{ id: 0, number: 1 }, { id: 1, number: 2 }],
-      episodes: [{ id: 0, season_id: 0, title: "Episode 1 - Potato war starts" }, { id: 1, season_id: 0, title: "Episode 2 - Potato war continue" }, { id: 2, season_id: 0, title: "Episode 3 - Potato war end" }, { id: 4, season_id: 1, title: "Episode 1" }, { id: 5, season_id: 1, title: "Episode 2" }, { id: 6, season_id: 1, title: "Episode 3" }, { id: 7, season_id: 1, title: "Episode 4" }],
+      show: null,
     }
   }
 }
@@ -152,7 +159,7 @@ export default {
   flex-direction: row;
   justify-content: center;
   margin-top: 100px;
-  color: $light-color-1;
+  color: $main-text-color;
   width: 100%;
 
   .image {
@@ -166,7 +173,7 @@ export default {
       display: grid;
       position: relative;
       margin-top: 10px;
-      max-height: 150px;
+      max-height: 200px;
       overflow-y: scroll;
       transition: all 0.2s;
 
@@ -181,6 +188,10 @@ export default {
         opacity: 0;
       }
 
+      &.seasons {
+        max-height: 120px;
+      }
+
       .item-wrapper {
         width: 100%;
         display: flex;
@@ -188,9 +199,9 @@ export default {
         cursor: pointer;
 
         .item {
-          width: 90%;
+          width: 100%;
           padding: 10px 20px;
-          white-space: nowrap;
+          white-space: wrap;
           transition: all 0.1s;
           background: rgba(255, 255, 255, 0.082);
 
@@ -204,8 +215,8 @@ export default {
         }
 
         .status {
-          margin: auto;
-          width: 10%;
+          min-width: 40px;
+          width: 40px;
           height: 100%;
           background: $main-bg-2;
           transition: all 0.1s;
@@ -256,7 +267,7 @@ export default {
   .items {
     position: relative;
     margin-left: 50px;
-    width: 450px;
+    width: 650px;
 
     &>* {
       margin: 10px 0;
@@ -273,5 +284,10 @@ export default {
       }
     }
   }
+}
+
+.big-title {
+  max-height: 100px;
+  overflow: scroll;
 }
 </style>

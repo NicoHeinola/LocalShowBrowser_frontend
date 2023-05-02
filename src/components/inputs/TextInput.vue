@@ -1,6 +1,6 @@
 <template>
     <div class="text-input">
-        <input type="text" :placeholder="placeholder" v-model="value" @input="onInput" />
+        <input type="text" :placeholder="placeholder" :value="modelValue" @input="onInput" />
         <div class="effects">
             <div class="underline"></div>
             <div class="highlight"></div>
@@ -13,16 +13,16 @@
 export default {
     name: "TextInput",
     props: {
-        placeholder: { type: String, required: false },
+        modelValue: { required: false },
+        placeholder: { required: false },
     },
     methods: {
         onInput(e) {
-            this.$emit("input", this.value);
+            this.$emit('update:modelValue', e.target.value)
         }
     },
     data() {
         return {
-            value: "",
         }
     }
 }
@@ -31,6 +31,7 @@ export default {
 
 <style lang="scss" scoped>
 .text-input {
+
     &.large {
         width: 100%;
     }
@@ -49,13 +50,14 @@ export default {
         position: relative;
         bottom: -5px;
         width: 100%;
+        height: 7px;
     }
 
     .underline {
         position: absolute;
         width: 20%;
         height: 2px;
-        bottom: 0;
+        top: 0;
         left: 0;
         background: $light-color-1;
         transition: all 0.2s ease-in-out;
@@ -66,7 +68,7 @@ export default {
         position: absolute;
         width: 100%;
         height: 2px;
-        bottom: 0;
+        top: 0;
         left: 0;
         background: $light-color-1;
         opacity: 0.4;

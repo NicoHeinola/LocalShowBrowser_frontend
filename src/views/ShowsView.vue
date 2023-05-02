@@ -4,13 +4,15 @@
       <div class="items">
         <div class="bg"></div>
         <h1>Search & Filtering</h1>
-        <TextInput class="large" placeholder="Type a name of a movie or show..."></TextInput>
+        <TextInput v-model="searchTerm" @input="searchShows" v-on:keyup.enter="searchShows" class="large" placeholder="Type a name of a movie or show..."></TextInput>
       </div>
     </HeroBanner>
-    <div class="shows">
+    <div class="shows-wrapper">
       <h1 class="title">Found 0 shows</h1>
-      <div class="column">
-        <ShowCard title="TEST 1" />
+      <div class="shows">
+        <div class="column" v-for="(row, index) in showsAsRows" :key="'showrow' + index">
+          <ShowCard v-for="(show) in row" :key="'show' + show.id" :coverImage="getShowImage(show)" :title="show.title" :id="show.id" :seasons="show.seasons.length" :episodes="calculateEpisodes(show)" />
+        </div>
       </div>
     </div>
   </div>
@@ -27,6 +29,48 @@ export default {
     ShowCard,
     HeroBanner,
     TextInput
+  },
+  methods: {
+    searchShows() {
+      this.$store.dispatch('show/searchShows', { searchTerm: this.searchTerm })
+    },
+    calculateEpisodes(show) {
+      return show.seasons.reduce((current, s) => s.episodes.length + current, 0)
+    },
+    getShowImage(show) {
+      if (show.cover_images.length == 0) return "";
+
+      let data = show.cover_images[0].cover_image;
+      let image = "data:image/*;base64," + data;
+      return image;
+    }
+  },
+  computed: {
+    showsAsRows() {
+      let shows = this.$store.getters['show/shows'];
+      let rows = [];
+      let current_row = null
+      let divider = 3;
+      for (let i = 0; i < shows.length; i++) {
+        let show = shows[i];
+        let new_row = i % divider == 0;
+        if (new_row) {
+          if (current_row != null) rows.push(current_row);
+          current_row = [];
+        }
+        current_row.push(show)
+      }
+      rows.push(current_row)
+      return rows;
+    }
+  },
+  created() {
+    this.searchShows()
+  },
+  data() {
+    return {
+      searchTerm: "",
+    }
   }
 }
 </script>
@@ -37,10 +81,11 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   width: 1200px;
   max-width: 100%;
   height: 200px;
-  color: $light-color-1;
+  color: $main-text-color;
   padding: 20px;
 
   .bg {
@@ -64,27 +109,33 @@ export default {
   }
 }
 
-.shows {
+.shows-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 25px;
-  width: 100%;
-  color: $light-color-1;
 
-  .title {
-    margin: 25px 0;
-  }
-
-  .column {
+  .shows {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px;
     width: 100%;
-    margin: 25px 0;
+    color: $main-text-color;
 
-    &>* {
-      margin: 0 25px;
+    .title {
+      margin: 25px 0;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      width: 100%;
+      margin: 25px 0;
+
+      &>* {
+        margin: 0 25px;
+      }
     }
   }
 }

@@ -3,22 +3,36 @@
         <nav>
             <div class="bg"></div>
             <div class="items">
-                <!--div class="item return">
-                    <img class="logo" src="@/assets/images/icons/return.png">
-                    <p class="text" @click="goBack">Go Back</p>
-                </div-->
-                <router-link to="/" class="item">
-                    <img class="logo" src="@/assets/images/icons/home.png">
-                    <p class="text">Home</p>
-                </router-link>
-                <router-link to="/shows" class="item">
-                    <img class="logo" src="@/assets/images/icons/movie.png">
-                    <p class="text">Shows</p>
-                </router-link>
-                <router-link to="/settings" class="item">
-                    <img class="logo" src="@/assets/images/icons/settings.png">
-                    <p class="text">Settings</p>
-                </router-link>
+                <TransitionGroup name="fade">
+                    <router-link key="item1" to="/" class="item">
+                        <img class="logo" src="@/assets/images/icons/home.png">
+                        <p class="text">Home</p>
+                    </router-link>
+                    <router-link key="item2" to="/shows" class="item">
+                        <img class="logo" src="@/assets/images/icons/movie.png">
+                        <p class="text">Shows</p>
+                    </router-link>
+                    <router-link key="item2" v-if="_isAdmin" to="/control-shows" class="item">
+                        <img class="logo" src="@/assets/images/icons/movie.png">
+                        <p class="text">Control shows</p>
+                    </router-link>
+                    <router-link key="item3" v-if="_isAdmin" to="/settings" class="item">
+                        <img class="logo" src="@/assets/images/icons/settings.png">
+                        <p class="text">Settings</p>
+                    </router-link>
+                    <router-link key="item4" v-if="!_isLoggedIn" to="/login" class="item">
+                        <img class="logo" src="@/assets/images/icons/login.png">
+                        <p class="text">Login</p>
+                    </router-link>
+                    <router-link key="item5" v-if="!_isLoggedIn" to="/register" class="item">
+                        <img class="logo" src="@/assets/images/icons/register.png">
+                        <p class="text">Register</p>
+                    </router-link>
+                    <div key="item6" v-if="_isLoggedIn && _currentUser" @click="logout" class="item">
+                        <img class="logo" src="@/assets/images/icons/register.png">
+                        <p class="text">Logout ({{ _currentUser.username }})</p>
+                    </div>
+                </TransitionGroup>
                 <div class="item search">
                     <TextInput placeholder="Search for shows or movies" />
                     <img class="logo" src="@/assets/images/icons/search.png">
@@ -42,15 +56,28 @@ export default {
         goBack() {
             this.$router.back()
         },
-        test() {
-            this.$store.dispatch("searchShows", "test");
+        logout() {
+            this.$store.dispatch('auth/logout');
+        },
+        async test() {
+            await this.$store.dispatch("show/searchShows");
         }
-    }
+    },
 }
 
 </script>
 
 <style lang="scss" scoped>
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity .3s
+}
+
+.fade-enter,
+.fade-leave-active {
+    opacity: 0
+}
+
 .nav-wrapper {
 
     display: flex;
@@ -65,7 +92,7 @@ export default {
         border-radius: 50px;
 
         z-index: 100;
-        color: $light-color-1;
+        color: $main-text-color;
 
         &>.bg {
             position: absolute;
@@ -109,7 +136,7 @@ export default {
                     background: none;
                 }
 
-                &:not(.search) ::after {
+                &:not(.search) &:not(.no-underline) ::after {
                     display: block;
                     position: absolute;
                     bottom: 2px;

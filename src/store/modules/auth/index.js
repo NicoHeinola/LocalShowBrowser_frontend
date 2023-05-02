@@ -1,7 +1,7 @@
 import actions from "./actions"
-import getters from "./actions"
-import mutations from "./actions"
-import state from "./actions"
+import getters from "./getters"
+import mutations from "./mutations"
+import state from "./state"
 
 let allToExport = {
     actions: actions,
@@ -11,5 +11,6 @@ let allToExport = {
 }
 
 export default {
+    namespaced: true,
     ...allToExport
 }

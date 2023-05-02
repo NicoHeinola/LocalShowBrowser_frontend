@@ -1,24 +1,13 @@
 import { createStore } from 'vuex'
 
-import show from './items/show/index';
-
-console.log(show)
+import show from './modules/show/index';
+import auth from './modules/auth/index';
+import user from './modules/user/index';
 
 export default createStore({
-  namespaced: true,
-  state: {
-    ...show.state
-  },
-  getters: {
-    ...show.getters
-
-  },
-  mutations: {
-    ...show.mutations
-
-  },
-  actions: {
-    ...show.actions
-
+  modules: {
+    show,
+    auth,
+    user,
   },
 })

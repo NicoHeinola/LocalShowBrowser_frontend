@@ -1,10 +1,12 @@
 <template>
-  <Navigation></Navigation>
-  <RouterView v-slot="{ Component }">
-    <Transition name="nav-transition" mode="out-in">
-      <component :is="Component"></component>
-    </Transition>
-  </RouterView>
+  <div class="main-app">
+    <Navigation></Navigation>
+    <RouterView v-slot="{ Component }">
+      <Transition name="nav-transition" mode="out-in">
+        <component :is="Component"></component>
+      </Transition>
+    </RouterView>
+  </div>
 </template>
 
 <script>
@@ -20,6 +22,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.main-app {
+  width: 100%;
+  height: 100dvh;
+}
+
 .nav-transition-enter-active,
 .nav-transition-leave-active {
   transition: all 0.2s ease-in-out;

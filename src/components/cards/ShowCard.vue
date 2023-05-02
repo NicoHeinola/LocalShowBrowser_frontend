@@ -16,6 +16,8 @@
                     </div>
                     <button class="button large" @click="moreInfo">More Info</button>
                     <button class="button large">Watch From Playlist</button>
+                    <button class="button large" @click="$router.push('edit-show/' + id)">Edit</button>
+                    <button class="button large red">Delete</button>
                 </div>
             </div>
         </div>
@@ -34,13 +36,13 @@
 export default {
     name: "ShowCard",
     props: {
-        id: { type: String, default: "0", required: false },
-        title: { type: String, required: false },
-        texts: { type: Array, required: false },
+        id: { default: "0", required: false },
+        title: { required: false },
+        texts: { required: false },
         coverImage: { required: false },
-        progress: { type: String, default: "0", required: false },
-        episodes: { type: String, default: "0", required: false },
-        seasons: { type: String, default: "0", required: false },
+        progress: { default: "0", required: false },
+        episodes: { default: "0", required: false },
+        seasons: { default: "0", required: false },
     },
     computed: {
         isActiveClass() {
@@ -57,7 +59,8 @@ export default {
         },
 
         moreInfo() {
-            this.$router.push("single-show/" + this.id)
+            if (!this.isUrlChanging) this.$router.push("single-show/" + this.id)
+            this.isUrlChanging = true;
         }
     },
     created() {
@@ -67,6 +70,7 @@ export default {
         return {
             isActive: false,
             image: null,
+            isUrlChanging: false,
         }
     }
 }
@@ -77,12 +81,13 @@ export default {
 .card {
     position: relative;
     height: 350px;
+    width: 250px;
     border-radius: 15px;
     /*background: rgb(255, 255, 255);*/
     margin-right: 0;
     transition: all 0.25s ease-out;
     box-shadow: 5px 5px 15px 1px rgba(0, 0, 0, 0.404);
-    color: $light-color-1;
+    color: $main-text-color;
     bottom: 0;
     opacity: 0.9;
 
