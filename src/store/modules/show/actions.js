@@ -54,4 +54,29 @@ export default {
             throw e;
         })
     },
+    deleteShow({ commit }, showId) {
+        return axios.delete("/shows/" + showId).then((response) => {
+            return response;
+        }).catch(e => {
+            throw e;
+        })
+    },
+    watchedEpisode({ commit }, params) {
+        let showId = params.showId;
+        let seasonId = params.seasonId;
+        let episodeId = params.episodeId;
+        let watched = params.watched;
+        return axios.post("/shows/" + showId + "/watched-episode", { season_id: seasonId, episode_id: episodeId, watched: watched }).then((response) => {
+            return response;
+        }).catch(e => {
+            throw e;
+        })
+    },
+    getWatchedEpisodes({ commit }, showId) {
+        return axios.get("/shows/" + showId + "/watched-episodes").then((response) => {
+            return response;
+        }).catch(e => {
+            throw e;
+        })
+    }
 }

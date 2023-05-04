@@ -2,7 +2,7 @@
   <div class="home">
     <HeroBanner :heroImage="require('@/assets/images/wallpaper-1.jpg')">
       <div class="cards">
-        <ShowCard title="TEST 1" episodes="48" seasons="2" />
+        <!--ShowCard title="TEST 1" episodes="48" seasons="2" /-->
       </div>
     </HeroBanner>
   </div>

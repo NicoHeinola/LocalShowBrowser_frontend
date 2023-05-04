@@ -82,7 +82,7 @@ export default {
         --padding: 15px;
         display: flex;
         flex-direction: row;
-        overflow-x: scroll;
+        overflow-x: auto;
         background: $modal-background-darker;
         padding: calc(var(--padding) * 2) var(--padding);
         border-radius: 5px;

@@ -11,7 +11,9 @@
       <h1 class="title">Found 0 shows</h1>
       <div class="shows">
         <div class="column" v-for="(row, index) in showsAsRows" :key="'showrow' + index">
-          <ShowCard v-for="(show) in row" :key="'show' + show.id" :coverImage="getShowImage(show)" :title="show.title" :id="show.id" :seasons="show.seasons.length" :episodes="calculateEpisodes(show)" />
+          <Transition name="show-appear" v-for="(show) in row" :key="'show' + show.id">
+            <ShowCard @deleted="searchShows" :show="show" />
+          </Transition>
         </div>
       </div>
     </div>
@@ -33,16 +35,6 @@ export default {
   methods: {
     searchShows() {
       this.$store.dispatch('show/searchShows', { searchTerm: this.searchTerm })
-    },
-    calculateEpisodes(show) {
-      return show.seasons.reduce((current, s) => s.episodes.length + current, 0)
-    },
-    getShowImage(show) {
-      if (show.cover_images.length == 0) return "";
-
-      let data = show.cover_images[0].cover_image;
-      let image = "data:image/*;base64," + data;
-      return image;
     }
   },
   computed: {
@@ -76,6 +68,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.show-appear-enter-active,
+.show-appear-active {
+  transition: opacity .3s
+}
+
+.show-appear,
+.show-appear-active {
+  opacity: 0
+}
+
 .items {
   position: relative;
   display: flex;

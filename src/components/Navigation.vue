@@ -16,7 +16,11 @@
                         <img class="logo" src="@/assets/images/icons/movie.png">
                         <p class="text">Control shows</p>
                     </router-link>
-                    <router-link key="item3" v-if="_isAdmin" to="/settings" class="item">
+                    <router-link key="item3" v-if="_isAdmin" to="/site-settings" class="item">
+                        <img class="logo" src="@/assets/images/icons/settings.png">
+                        <p class="text">Site Settings</p>
+                    </router-link>
+                    <router-link key="item3" v-if="_isLoggedIn && _currentUser" to="/settings" class="item">
                         <img class="logo" src="@/assets/images/icons/settings.png">
                         <p class="text">Settings</p>
                     </router-link>
@@ -60,7 +64,7 @@ export default {
             this.$store.dispatch('auth/logout');
         },
         async test() {
-            await this.$store.dispatch("show/searchShows");
+            await this.$store.dispatch("mediaPlayer/isDownloaded");
         }
     },
 }

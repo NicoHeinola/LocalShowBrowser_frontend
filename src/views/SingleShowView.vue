@@ -19,7 +19,7 @@
         <div class="list-items episodes">
           <transition-group name="fade">
             <div class="item-wrapper" v-for="ep in currentEpisodes" :key="'episode-' + ep.id">
-              <p :class="'item ' + episodeClass(ep.id)" @click="selectEpisode(ep.id)">{{ ep.number }} - {{ (ep.title) ? ep.title : ep.filename }}</p>
+              <p :class="'item ' + episodeClass(ep.id)" @click="selectEpisode(ep.id)">{{ ep.id }} - {{ (ep.title) ? ep.title : ep.filename }}</p>
               <div :class="'status ' + episodeStatusClass(ep.id)" @click="toggleWatchedEpisode(selectedSeason, ep.id)"></div>
             </div>
           </transition-group>
@@ -73,7 +73,8 @@ export default {
       return watched ? "watched" : "";
     },
     episodeStatusClass(episodeId) {
-      return this.watchedEpisodes.find(ep => ep.id == episodeId) ? "watched" : "";
+      let found = this.watchedEpisodes.find(ep => ep.id == episodeId) ? "watched" : "";
+      return found
     },
     toggleWatchedSeason(seasonId) {
       let foundWatchedStatus = this.seasonStatusClass(seasonId);
@@ -94,7 +95,7 @@ export default {
         }
       }
     },
-    toggleWatchedEpisode(seasonId, episodeId) {
+    async toggleWatchedEpisode(seasonId, episodeId) {
       let found = this.watchedEpisodes.find(e => e.id == episodeId && e.season_id == seasonId)
       if (found) {
         let index = this.watchedEpisodes.indexOf(found);
@@ -103,10 +104,25 @@ export default {
         let toAdd = { ...this.seasonEpisodes(seasonId).find(e => e.id == episodeId && e.season_id == seasonId) };
         this.watchedEpisodes.push(toAdd);
       }
+      let watched = found == undefined;
+      await this.$store.dispatch('show/watchedEpisode', { episodeId: episodeId, seasonId: seasonId, showId: this.id, watched: watched })
     },
     seasonEpisodes(seasonId) {
       return this.show.seasons.filter(s => s.id == seasonId)[0].episodes;
     },
+    async updateWatchedEpisodes() {
+      this.watchedEpisodes = []
+      let response = await this.$store.dispatch("show/getWatchedEpisodes", this.id)
+      for (let user_episode of response.data) {
+        let episode;
+        for (let season of this.show.seasons) {
+          episode = season.episodes.find(episode => episode.id == user_episode.episode_id);
+          if (episode) break;
+        }
+        this.watchedEpisodes.push({ ...episode })
+      }
+      this.watchedEpisodes = [...this.watchedEpisodes]
+    }
   },
   computed: {
     currentSeason() {
@@ -126,9 +142,12 @@ export default {
     this.image = require("@/assets/images/template-cover.jpg");
 
     await this.$store.dispatch("show/getShow", this.id)
+
     let show = this.$store.getters['show/show'];
     this.show = show;
     if (this.show.cover_images.length > 0) this.image = 'data:image/*;base64,' + this.show.cover_images[0].cover_image;
+
+    await this.updateWatchedEpisodes();
   },
   data() {
     return {
@@ -174,7 +193,7 @@ export default {
       position: relative;
       margin-top: 10px;
       max-height: 200px;
-      overflow-y: scroll;
+      overflow-y: auto;
       transition: all 0.2s;
 
       .fade-enter-active,
@@ -288,6 +307,6 @@ export default {
 
 .big-title {
   max-height: 100px;
-  overflow: scroll;
+  overflow: auto;
 }
 </style>

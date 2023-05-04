@@ -67,9 +67,9 @@
               <TextInput v-model="episode.title" placeholder="Episode Title" />
               <TextInput v-model="episode.filename" placeholder="Filename" />
               <span class="margin-right">Is Special?</span>
-              <input type="checkbox" v-model="episode.isSpecial" />
+              <input type="checkbox" v-model="episode.is_special" />
               <TextInput v-model="episode.number" placeholder="Episode Number" />
-              <button class="button top-alert" @click="removeSeason(index)">Delete Episode</button>
+              <button class="button top-alert" @click="removeEpisode(index, epIndex)">Delete Episode</button>
             </div>
             <button class="button top-alert" @click="addEpisode(index)">Add Episode</button>
             <button class="button" @click="removeSeason(index)">Delete Season</button>
@@ -171,7 +171,7 @@ export default {
 
       let full_path = show.full_path
       let episodes = show.episodes
-      let isSpecial = show.is_special
+      let is_special = show.is_special
 
       let season_episodes = []
       for (let ep of episodes) {
@@ -179,7 +179,7 @@ export default {
         let file = ep.file
         let number = ep.suggested_episode_number
 
-        let to_add = { isSpecial: isSpecial, title: title, filename: file, number: '' + number }
+        let to_add = { is_special: is_special, title: title, filename: file, number: '' + number }
         season_episodes.push(to_add)
       }
       let season = { title: '', episodes: season_episodes, path: full_path, number: '' + (this.seasons.length + 1) }
@@ -192,7 +192,7 @@ export default {
 
 
       let season = this.seasons[this.templateSeasonIndexForEpisode];
-      let isSpecial = show.is_special
+      let is_special = show.is_special
       let episodes = season.episodes;
       let season_episodes = []
 
@@ -201,7 +201,7 @@ export default {
         let file = ep.file
         let number = ep.suggested_episode_number
 
-        let to_add = { isSpecial: isSpecial, title: title, filename: file, number: '' + (season.episodes.length + i + 1) }
+        let to_add = { is_special: is_special, title: title, filename: file, number: '' + (season.episodes.length + i + 1) }
         season_episodes.push(to_add)
       }
       season.episodes = [...season.episodes, ...season_episodes]
@@ -220,10 +220,10 @@ export default {
       this.seasons.splice(index, 1)
     },
     addEpisode(seasonIndex) {
-      this.seasons[seasonIndex].episodes.push({ isSpecial: false, title: "", filename: "", number: '' + (this.seasons[seasonIndex].episodes.length + 1) })
+      this.seasons[seasonIndex].episodes.push({ is_special: false, title: "", filename: "", number: '' + (this.seasons[seasonIndex].episodes.length + 1) })
     },
-    removeEpisode(index) {
-      this.titles.splice(index, 1)
+    removeEpisode(seasonIndex, episodeIndex) {
+      this.seasons[seasonIndex].episodes.splice(episodeIndex, 1);
     },
     addShow() {
       if (!this.validate()) return;
@@ -238,10 +238,17 @@ export default {
         id: this.show ? this.show.id : null
       }).then(response => {
         this.$store.dispatch('show/getNotAddedShows');
-        this.$refs.success.timeout(4000, 'Show added successfully!');
-        this.clearForm()
+
+        if (this.isEditing) {
+          this.$refs.success.timeout(4000, 'Show saved successfully!');
+        } else {
+          this.$refs.success.timeout(4000, 'Show added successfully!');
+          this.clearForm()
+        }
       }).catch(e => {
-        let error = (e && e.response.data.error) ? e.response.data.error : 'There was an unkown error while adding show!'
+        let error = "";
+        if (this.isEditing) error = (e && e.response.data.error) ? e.response.data.error : 'There was an unkown error while adding show!';
+        else if (!this.isEditing) error = (e && e.response.data.error) ? e.response.data.error : 'There was an unkown error while editing show!';
         this.$refs.error.timeout(4000, error);
       });
 
@@ -346,7 +353,7 @@ export default {
 
 .rows-wrapper {
   max-height: 450px;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .row {

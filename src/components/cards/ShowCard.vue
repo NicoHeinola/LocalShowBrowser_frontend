@@ -3,9 +3,8 @@
         <div class="part hidden">
             <div class="bg"></div>
             <div class="wrapper">
-                <p class="text" v-for="text in texts" :key="'text-' + text">{{ text }}</p>
-                <p class="text">Episodes: {{ episodes }}</p>
-                <p class="text">Seasons: {{ seasons }}</p>
+                <p class="text">Episodes: {{ calculateEpisodes }}</p>
+                <p class="text">Seasons: {{ calculateSeasons }}</p>
                 <div class="bottom">
                     <div class="progress">
                         <p>Progress {{ progress }} % / 100 %</p>
@@ -16,15 +15,15 @@
                     </div>
                     <button class="button large" @click="moreInfo">More Info</button>
                     <button class="button large">Watch From Playlist</button>
-                    <button class="button large" @click="$router.push('edit-show/' + id)">Edit</button>
-                    <button class="button large red">Delete</button>
+                    <button class="button large" @click="$router.push('edit-show/' + show.id)">Edit</button>
+                    <button class="button large red" @click="deleteShow(id)">Delete</button>
                 </div>
             </div>
         </div>
         <div class="part cover" @click="toggleActive">
             <img class="cover-image" :src="image">
             <div class="wrapper">
-                <h1>{{ title }}</h1>
+                <h1>{{ show.title }}</h1>
             </div>
         </div>
 
@@ -36,18 +35,25 @@
 export default {
     name: "ShowCard",
     props: {
-        id: { default: "0", required: false },
-        title: { required: false },
-        texts: { required: false },
-        coverImage: { required: false },
-        progress: { default: "0", required: false },
-        episodes: { default: "0", required: false },
-        seasons: { default: "0", required: false },
+        show: { required: true }
     },
     computed: {
         isActiveClass() {
             return this.isActive ? "active" : "";
-        }
+        },
+        calculateEpisodes() {
+            return this.show.seasons.reduce((current, s) => s.episodes.length + current, 0)
+        },
+        calculateSeasons() {
+            return this.show.seasons.length;
+        },
+        getShowImage() {
+            if (this.show.cover_images.length == 0) return "";
+
+            let data = this.show.cover_images[0].cover_image;
+            let image = "data:image/*;base64," + data;
+            return image;
+        },
     },
     methods: {
         toggleActive() {
@@ -59,18 +65,32 @@ export default {
         },
 
         moreInfo() {
-            if (!this.isUrlChanging) this.$router.push("single-show/" + this.id)
+            if (!this.isUrlChanging) this.$router.push("single-show/" + this.show.id)
             this.isUrlChanging = true;
+        },
+
+        async deleteShow(showId) {
+            await this.$store.dispatch('show/deleteShow', showId);
+            this.$emit('deleted');
+        },
+        async calculateProgress() {
+            if (this._isLoggedIn) {
+                let response = await this.$store.dispatch("show/getWatchedEpisodes", this.show.id)
+                let user_episodes = response.data
+                this.progress = user_episodes.length / this.calculateEpisodes * 100
+            }
         }
     },
     created() {
-        this.image = this.coverImage ? this.coverImage : require("@/assets/images/template-cover.jpg");
+        this.image = this.getShowImage ? this.getShowImage : require("@/assets/images/template-cover.jpg");
+        this.calculateProgress();
     },
     data() {
         return {
             isActive: false,
             image: null,
             isUrlChanging: false,
+            progress: 0,
         }
     }
 }
