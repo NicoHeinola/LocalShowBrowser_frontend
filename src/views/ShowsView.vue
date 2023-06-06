@@ -8,7 +8,7 @@
       </div>
     </HeroBanner>
     <div class="shows-wrapper">
-      <h1 class="title">Found 0 shows</h1>
+      <h1 class="title">Found {{ showCount }} shows</h1>
       <div class="shows">
         <div class="column" v-for="(row, index) in showsAsRows" :key="'showrow' + index">
           <Transition name="show-appear" v-for="(show) in row" :key="'show' + show.id">
@@ -38,6 +38,10 @@ export default {
     }
   },
   computed: {
+    showCount() {
+      let shows = this.$store.getters['show/shows'];
+      return shows.length;
+    },
     showsAsRows() {
       let shows = this.$store.getters['show/shows'];
       let rows = [];
@@ -115,6 +119,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 20px;
 
   .shows {
     display: flex;

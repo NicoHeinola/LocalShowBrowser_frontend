@@ -106,7 +106,7 @@ export default {
         border-top-right-radius: 5px;
         border-bottom-right-radius: 5px;
         padding: 0 20px;
-        min-width: 150px;
+        /*min-width: 150px;*/
         width: max-content;
         white-space: nowrap;
     }

@@ -16,11 +16,7 @@
                         <img class="logo" src="@/assets/images/icons/movie.png">
                         <p class="text">Control shows</p>
                     </router-link>
-                    <router-link key="item3" v-if="_isAdmin" to="/site-settings" class="item">
-                        <img class="logo" src="@/assets/images/icons/settings.png">
-                        <p class="text">Site Settings</p>
-                    </router-link>
-                    <router-link key="item3" v-if="_isLoggedIn && _currentUser" to="/settings" class="item">
+                    <router-link key="item3" v-if="_isAdmin" to="/settings" class="item">
                         <img class="logo" src="@/assets/images/icons/settings.png">
                         <p class="text">Settings</p>
                     </router-link>
@@ -41,7 +37,7 @@
                     <TextInput placeholder="Search for shows or movies" />
                     <img class="logo" src="@/assets/images/icons/search.png">
                 </div>
-                <button style="z-index: 100;" class="button" @click="test">Test button!</button>
+                <!--button style="z-index: 100;" class="button" @click="test">Test button!</button-->
             </div>
         </nav>
     </div>

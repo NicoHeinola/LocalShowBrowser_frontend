@@ -14,9 +14,9 @@
                         </div>
                     </div>
                     <button class="button large" @click="moreInfo">More Info</button>
-                    <button class="button large">Watch From Playlist</button>
-                    <button class="button large" @click="$router.push('edit-show/' + show.id)">Edit</button>
-                    <button class="button large red" @click="deleteShow(id)">Delete</button>
+                    <!--button class="button large">Watch From Playlist</button-->
+                    <button v-if="_isAdmin" class="button large" @click="$router.push('edit-show/' + show.id)">Edit</button>
+                    <button v-if="_isAdmin" class="button large red" @click="deleteShow(show.id)">Delete</button>
                 </div>
             </div>
         </div>
@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2'
 
 export default {
     name: "ShowCard",
@@ -70,6 +71,16 @@ export default {
         },
 
         async deleteShow(showId) {
+            let result = await Swal.fire({
+                icon: 'question',
+                title: 'Are you sure you want to delete this show?',
+                confirmButtonText: "Yes",
+                cancelButtonText: "No",
+                showCancelButton: true,
+                showCloseButton: true
+            });
+            if (!result.isConfirmed) return;
+
             await this.$store.dispatch('show/deleteShow', showId);
             this.$emit('deleted');
         },
@@ -77,7 +88,7 @@ export default {
             if (this._isLoggedIn) {
                 let response = await this.$store.dispatch("show/getWatchedEpisodes", this.show.id)
                 let user_episodes = response.data
-                this.progress = user_episodes.length / this.calculateEpisodes * 100
+                this.progress = Math.round(user_episodes.length / this.calculateEpisodes * 100)
             }
         }
     },
@@ -106,7 +117,7 @@ export default {
     /*background: rgb(255, 255, 255);*/
     margin-right: 0;
     transition: all 0.25s ease-out;
-    box-shadow: 5px 5px 15px 1px rgba(0, 0, 0, 0.404);
+    box-shadow: 5px 5px 15px 1px rgba(0, 0, 0, 0.664);
     color: $main-text-color;
     bottom: 0;
     opacity: 0.9;
@@ -136,7 +147,7 @@ export default {
     h1 {
         font-size: 25px;
         text-align: center;
-        text-shadow: 1px 1px 15px black, 1px 1px 15px black, 1px 1px 15px black;
+        text-shadow: 1px 1px 5px black, 1px 1px 10px black, 1px 1px 10px black;
         user-select: none;
     }
 

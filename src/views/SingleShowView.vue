@@ -19,13 +19,15 @@
         <div class="list-items episodes">
           <transition-group name="fade">
             <div class="item-wrapper" v-for="ep in currentEpisodes" :key="'episode-' + ep.id">
-              <p :class="'item ' + episodeClass(ep.id)" @click="selectEpisode(ep.id)">{{ ep.id }} - {{ (ep.title) ? ep.title : ep.filename }}</p>
+              <p :class="'item ' + episodeClass(ep.id)" @click="selectEpisode(ep.id)">{{ ep.number }} - {{ (ep.title) ? ep.title : ep.filename }}</p>
               <div :class="'status ' + episodeStatusClass(ep.id)" @click="toggleWatchedEpisode(selectedSeason, ep.id)"></div>
             </div>
           </transition-group>
         </div>
       </div>
       <div class="bottom">
+        <AlertBox ref='season_warning' type="warning"></AlertBox>
+        <AlertBox ref='episode_warning' type="warning"></AlertBox>
         <div class="progress">
           <p>Progress {{ calculateProgress }} % / 100 %</p>
           <div class="bar">
@@ -33,21 +35,38 @@
             <div class="shadow"></div>
           </div>
         </div>
-        <button class="button large">Watch From Playlist</button>
-        <button class="button large">Watch Episode</button>
+        <button class="button large" @click="watchSeason">Watch From Playlist</button>
+        <button class="button large" @click="watchEpisode">Watch Episode</button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import AlertBox from '@/components/AlertBox.vue';
+
 
 export default {
   name: 'SingleShowView',
   components: {
-
+    AlertBox
   },
   methods: {
+    watchEpisode() {
+      if (!this.selectedEpisode || !this.selectedSeason) {
+        if (!this.selectedEpisode) this.$refs.episode_warning.timeout(4000, 'Remember to choose an episode!');
+        if (!this.selectedSeason) this.$refs.season_warning.timeout(4000, 'Remember to choose a season!');
+        return;
+      }
+      this.$store.dispatch("show/watchEpisode", { showId: this.show.id, seasonId: this.selectedSeason, episodeId: this.selectedEpisode })
+    },
+    watchSeason() {
+      if (!this.selectedSeason) {
+        this.$refs.season_warning.timeout(4000, 'Remember to choose a season!');
+        return;
+      }
+      this.$store.dispatch("show/watchSeason", { showId: this.show.id, seasonId: this.selectedSeason })
+    },
     selectEpisode(episodeId) {
       this.selectedEpisode = episodeId;
     },
@@ -77,6 +96,8 @@ export default {
       return found
     },
     toggleWatchedSeason(seasonId) {
+      if (!this._isLoggedIn) return;
+
       let foundWatchedStatus = this.seasonStatusClass(seasonId);
       let episodesInSeason = this.seasonEpisodes(seasonId).filter(e => e.season_id == seasonId);
       if (foundWatchedStatus) {
@@ -96,6 +117,8 @@ export default {
       }
     },
     async toggleWatchedEpisode(seasonId, episodeId) {
+      if (!this._isLoggedIn) return;
+
       let found = this.watchedEpisodes.find(e => e.id == episodeId && e.season_id == seasonId)
       if (found) {
         let index = this.watchedEpisodes.indexOf(found);
@@ -111,6 +134,8 @@ export default {
       return this.show.seasons.filter(s => s.id == seasonId)[0].episodes;
     },
     async updateWatchedEpisodes() {
+      if (!this._isLoggedIn) return;
+
       this.watchedEpisodes = []
       let response = await this.$store.dispatch("show/getWatchedEpisodes", this.id)
       for (let user_episode of response.data) {

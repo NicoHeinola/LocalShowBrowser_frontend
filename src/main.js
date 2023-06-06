@@ -18,6 +18,7 @@ const log = (...args) => {
 
 window.log = log;
 
+
 const app = createApp(App);
 app.use(store);
 app.use(router);

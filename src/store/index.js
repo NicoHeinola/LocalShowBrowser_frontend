@@ -4,12 +4,16 @@ import show from './modules/show/index';
 import auth from './modules/auth/index';
 import user from './modules/user/index';
 import mediaPlayer from './modules/mediaPlayer/index';
+import setting from './modules/setting/index';
+import blacklistedFolder from './modules/blacklistedFolder/index';
 
 export default createStore({
   modules: {
     show,
     auth,
     user,
-    mediaPlayer
+    mediaPlayer,
+    setting,
+    blacklistedFolder
   },
 })

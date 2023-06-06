@@ -1,6 +1,20 @@
 import axios from "axios";
 
 export default {
+    watchEpisode({ commit }, params) {
+        return axios.get(`/shows/${params.showId}/${params.seasonId}/${params.episodeId}/watch`).then((response) => {
+            return response;
+        }).catch(e => {
+            throw e;
+        })
+    },
+    watchSeason({ commit }, params) {
+        return axios.get(`/shows/${params.showId}/${params.seasonId}/watch`).then((response) => {
+            return response;
+        }).catch(e => {
+            throw e;
+        })
+    },
     searchShows({ commit }, params) {
         let term = (params && params.searchTerm) ? params.searchTerm : '';
         return axios.get("/shows", { "params": { "searchTerm": term } }).then((response) => {

@@ -7,6 +7,12 @@
   color: $main-text-color;
 }
 
+/* SWAL */
+div:where(.swal2-container) div:where(.swal2-popup) {
+  background: $main-bg-2 !important;
+  color: white !important;
+}
+
 body {
   background: $main-bg;
 }
