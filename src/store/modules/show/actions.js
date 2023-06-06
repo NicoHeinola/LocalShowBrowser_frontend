@@ -8,6 +8,24 @@ export default {
             throw e;
         })
     },
+    latestWatched({ commit }, params) {
+        return axios.get(`/shows/latest_watched`).then((response) => {
+            commit('SET_LATEST_WATCHED', response.data)
+            return response;
+        }).catch(e => {
+            commit('SET_LATEST_WATCHED', [])
+            throw e;
+        })
+    },
+    latestUploaded({ commit }, params) {
+        return axios.get(`/shows/latest_uploaded`).then((response) => {
+            commit('SET_LATEST_UPLOADED', response.data)
+            return response;
+        }).catch(e => {
+            commit('SET_LATEST_UPLOADED', [])
+            throw e;
+        })
+    },
     watchSeason({ commit }, params) {
         return axios.get(`/shows/${params.showId}/${params.seasonId}/watch`).then((response) => {
             return response;

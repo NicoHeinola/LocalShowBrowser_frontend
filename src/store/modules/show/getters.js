@@ -2,6 +2,12 @@ export default {
     shows(state) {
         return state.shows;
     },
+    latestWatched(state) {
+        return state.latestWatched;
+    },
+    latestUploaded(state) {
+        return state.latestUploaded;
+    },
     show(state) {
         return state.show;
     },

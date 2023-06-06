@@ -5,6 +5,12 @@
         <!--ShowCard title="TEST 1" episodes="48" seasons="2" /-->
       </div>
     </HeroBanner>
+    <div class="card-container">
+      <h1 class="title">Latest uploads</h1>
+      <div class="card-row">
+        <ShowCard @deleted="onDeleteShow" v-for="show in latestUploadedShows" :key="'latest-show-' + show.id" :show="show" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -19,6 +25,23 @@ export default {
   components: {
     ShowCard,
     HeroBanner
+  },
+  methods: {
+    onDeleteShow() {
+      this.updateLatestUploadedShows();
+    },
+    async updateLatestUploadedShows() {
+      await this.$store.dispatch('show/latestUploaded');
+      this.latestUploadedShows = this.$store.getters["show/latestUploaded"]
+    }
+  },
+  async created() {
+    this.updateLatestUploadedShows();
+  },
+  data() {
+    return {
+      latestUploadedShows: []
+    }
   }
 }
 </script>
@@ -60,6 +83,27 @@ export default {
     height: 100%;
     background: rgb(0, 0, 0);
     background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.74) 100%);
+  }
+}
+
+.card-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: 40px;
+
+  .title {
+    margin-bottom: 40px;
+  }
+
+  .card-row {
+    display: grid;
+    position: relative;
+    grid-template-columns: auto auto auto;
+    justify-content: space-evenly;
+    width: 100%;
   }
 }
 </style>
