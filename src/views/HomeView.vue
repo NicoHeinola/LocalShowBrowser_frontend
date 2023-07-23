@@ -92,7 +92,7 @@ export default {
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin-top: 40px;
+  margin: 40px 0;
 
   .title {
     margin-bottom: 40px;
