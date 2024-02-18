@@ -329,12 +329,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.control-shows-wrapper {
+  padding: 50px 0;
+}
+
 .control-shows {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   column-gap: 75px;
   padding: 0 75px;
-  margin-top: calc($margin-top-from-nav / 2);
+  margin-top: 50px;
 }
 
 .margin-right {
@@ -377,7 +381,6 @@ export default {
     width: calc(100% - 75px * 2);
     height: initial;
     margin: auto;
-    margin-top: $margin-top-from-nav;
 
     &>* {
       width: 100%;

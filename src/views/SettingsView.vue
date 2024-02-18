@@ -154,7 +154,14 @@ export default {
 <style lang="scss" scoped>
 .settings {
   position: relative;
-  margin-top: $margin-top-from-nav;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 100%;
+  padding: 100px;
 
   .media-player-status {
     position: relative;

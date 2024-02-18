@@ -1,42 +1,44 @@
 <template>
   <div class="single-show-view">
-    <img class="image" :src="image">
-    <div class="items" v-if="show">
-      <h1 class="big-title title">{{ show.title }}</h1>
-      <div class="list-view">
-        <p class="title">Seasons:</p>
-        <hr>
-        <div class="list-items seasons">
-          <div class="item-wrapper" v-for="season in show.seasons" :key="'season-' + season.id">
-            <p :class="'item ' + seasonClass(season.id)" @click="selectSeason(season.id)">{{ season.number }} {{ season.title ? ' - ' + season.title : '' }}</p>
-            <div :class="'status ' + seasonStatusClass(season.id)" @click="toggleWatchedSeason(season.id)"></div>
-          </div>
-        </div>
-      </div>
-      <div class="list-view" v-show="currentEpisodes.length > 0">
-        <p class="title">Episodes:</p>
-        <hr>
-        <div class="list-items episodes">
-          <transition-group name="fade">
-            <div class="item-wrapper" v-for="ep in currentEpisodes" :key="'episode-' + ep.id">
-              <p :class="'item ' + episodeClass(ep.id)" @click="selectEpisode(ep.id)">{{ ep.number }} - {{ (ep.title) ? ep.title : ep.filename }}</p>
-              <div :class="'status ' + episodeStatusClass(ep.id)" @click="toggleWatchedEpisode(selectedSeason, ep.id)"></div>
+    <div class="single-show-view-wrapper">
+      <img class="image" :src="image">
+      <div class="items" v-if="show">
+        <h1 class="big-title title">{{ show.title }}</h1>
+        <div class="list-view">
+          <p class="title">Seasons:</p>
+          <hr>
+          <div class="list-items seasons">
+            <div class="item-wrapper" v-for="season in show.seasons" :key="'season-' + season.id">
+              <p :class="'item ' + seasonClass(season.id)" @click="selectSeason(season.id)">{{ season.number }} {{ season.title ? ' - ' + season.title : '' }}</p>
+              <div :class="'status ' + seasonStatusClass(season.id)" @click="toggleWatchedSeason(season.id)"></div>
             </div>
-          </transition-group>
-        </div>
-      </div>
-      <div class="bottom">
-        <AlertBox ref='season_warning' type="warning"></AlertBox>
-        <AlertBox ref='episode_warning' type="warning"></AlertBox>
-        <div class="progress">
-          <p>Progress {{ calculateProgress }} % / 100 %</p>
-          <div class="bar">
-            <div class="active" :style="'width:' + calculateProgress + '% !important'"></div>
-            <div class="shadow"></div>
           </div>
         </div>
-        <button class="button large" @click="watchSeason">Watch From Playlist</button>
-        <button class="button large" @click="watchEpisode">Watch Episode</button>
+        <div class="list-view" v-show="currentEpisodes.length > 0">
+          <p class="title">Episodes:</p>
+          <hr>
+          <div class="list-items episodes">
+            <transition-group name="fade">
+              <div class="item-wrapper" v-for="ep in currentEpisodes" :key="'episode-' + ep.id">
+                <p :class="'item ' + episodeClass(ep.id)" @click="selectEpisode(ep.id)">{{ ep.number }} - {{ (ep.title) ? ep.title : ep.filename }}</p>
+                <div :class="'status ' + episodeStatusClass(ep.id)" @click="toggleWatchedEpisode(selectedSeason, ep.id)"></div>
+              </div>
+            </transition-group>
+          </div>
+        </div>
+        <div class="bottom">
+          <AlertBox ref='season_warning' type="warning"></AlertBox>
+          <AlertBox ref='episode_warning' type="warning"></AlertBox>
+          <div class="progress">
+            <p>Progress {{ calculateProgress }} % / 100 %</p>
+            <div class="bar">
+              <div class="active" :style="'width:' + calculateProgress + '% !important'"></div>
+              <div class="shadow"></div>
+            </div>
+          </div>
+          <button class="button large" @click="watchSeason">Watch From Playlist</button>
+          <button class="button large" @click="watchEpisode">Watch Episode</button>
+        </div>
       </div>
     </div>
   </div>
@@ -199,78 +201,88 @@ export default {
 }
 
 .single-show-view {
+
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
-  margin-top: 100px;
-  color: $main-text-color;
+  align-items: center;
   width: 100%;
+  min-height: 100%;
 
-  .image {
-    width: 450px;
-    height: 650px;
-    object-fit: cover;
-  }
+  .single-show-view-wrapper {
 
-  .list-view {
-    .list-items {
-      display: grid;
-      position: relative;
-      margin-top: 10px;
-      max-height: 200px;
-      overflow-y: auto;
-      transition: all 0.2s;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    color: $main-text-color;
+    width: 100%;
 
-      .fade-enter-active,
-      .fade-leave-active {
-        transition: all 0.3s ease;
-        opacity: 1;
-      }
+    .image {
+      width: 450px;
+      height: 650px;
+      object-fit: cover;
+    }
 
-      .fade-enter-from,
-      .fade-leave-to {
-        opacity: 0;
-      }
+    .list-view {
+      .list-items {
+        display: grid;
+        position: relative;
+        margin-top: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+        transition: all 0.2s;
 
-      &.seasons {
-        max-height: 120px;
-      }
-
-      .item-wrapper {
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        cursor: pointer;
-
-        .item {
-          width: 100%;
-          padding: 10px 20px;
-          white-space: wrap;
-          transition: all 0.1s;
-          background: rgba(255, 255, 255, 0.082);
-
-          &:hover {
-            background: rgba(255, 255, 255, 0.185);
-          }
-
-          &.active {
-            background: rgba(255, 255, 255, 0.226);
-          }
+        .fade-enter-active,
+        .fade-leave-active {
+          transition: all 0.3s ease;
+          opacity: 1;
         }
 
-        .status {
-          min-width: 40px;
-          width: 40px;
-          height: 100%;
-          background: $main-bg-2;
-          transition: all 0.1s;
+        .fade-enter-from,
+        .fade-leave-to {
+          opacity: 0;
+        }
 
-          &:hover {
-            opacity: 0.4;
+        &.seasons {
+          max-height: 120px;
+        }
+
+        .item-wrapper {
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          cursor: pointer;
+
+          .item {
+            width: 100%;
+            padding: 10px 20px;
+            white-space: wrap;
+            transition: all 0.1s;
+            background: rgba(255, 255, 255, 0.082);
+
+            &:hover {
+              background: rgba(255, 255, 255, 0.185);
+            }
+
+            &.active {
+              background: rgba(255, 255, 255, 0.226);
+            }
           }
 
-          &.watched {
-            background: $button-bg-1-hover;
+          .status {
+            min-width: 40px;
+            width: 40px;
+            height: 100%;
+            background: $main-bg-2;
+            transition: all 0.1s;
+
+            &:hover {
+              opacity: 0.4;
+            }
+
+            &.watched {
+              background: $button-bg-1-hover;
+            }
           }
         }
       }
