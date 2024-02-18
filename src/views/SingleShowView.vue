@@ -273,8 +273,9 @@ export default {
             min-width: 40px;
             width: 40px;
             height: 100%;
-            background: $main-bg-2;
+            background: $button-bg-1;
             transition: all 0.1s;
+            filter: brightness(80%);
 
             &:hover {
               opacity: 0.4;
@@ -282,6 +283,7 @@ export default {
 
             &.watched {
               background: $button-bg-1-hover;
+              filter: brightness(100%);
             }
           }
         }
