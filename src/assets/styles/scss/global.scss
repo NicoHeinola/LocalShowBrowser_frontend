@@ -5,6 +5,7 @@
   padding: 0;
   box-sizing: border-box;
   color: $main-text-color;
+  position: relative;
 }
 
 /* SWAL */
@@ -39,9 +40,16 @@ img {
   background-position: right;
 
   transition: all 0.3s;
+  color: $button-text-color;
+
+  filter: brightness(85%);
 
   &:hover {
     background-position: left;
+  }
+
+  &:active {
+    filter: brightness(100%);
   }
 
   &.large {
@@ -56,6 +64,184 @@ img {
     cursor: not-allowed;
   }
 
+}
+
+.plus-button {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px;
+
+  &:hover {
+    .plus {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    .plus {
+      opacity: 0.6;
+    }
+  }
+
+  .text {
+    font-size: 18px;
+    color: $button-text-color;
+  }
+}
+
+.plus {
+  position: relative;
+  height: min(50px, 100%);
+  aspect-ratio: 1;
+  opacity: 0.2;
+
+  transition: all 0.2s;
+
+  .line {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: rgb(255, 255, 255);
+
+    &.horizontal {
+      width: 3px;
+      height: min(40px, 70%);
+    }
+
+    &.vertical {
+      height: 3px;
+      width: min(40px, 70%);
+    }
+  }
+}
+
+.box-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 130px;
+  height: 70px;
+  padding: 20px;
+  outline: 3px solid $button-bg-1-hover;
+  border-radius: 5px;
+
+  transition: all 0.2s;
+
+  filter: brightness(80%);
+
+  &.active {
+    background: $button-bg-1-hover;
+    filter: brightness(100%);
+  }
+
+  &.extra-options {
+    &:hover {
+      .text {
+        opacity: 0;
+        top: -5px;
+      }
+
+      .options {
+        opacity: 1;
+        top: 0;
+      }
+    }
+
+    .options {
+      pointer-events: all;
+    }
+  }
+
+  .options {
+    display: flex;
+    position: absolute;
+    flex-direction: row;
+    justify-content: center;
+    gap: 5px;
+    align-items: center;
+    pointer-events: none;
+
+    left: 0;
+    top: -5px;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+
+    transition: all 0.2s;
+
+    .option {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      background: rgba(0, 0, 0, 0);
+      border-radius: 10px;
+      padding: 10px;
+      transition: all 0.2s;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.233);
+      }
+
+      .icon {
+        width: 28px;
+        aspect-ratio: 1;
+        object-fit: contain;
+      }
+    }
+  }
+
+
+  &:hover {
+    background: $button-bg-1-hover;
+    cursor: pointer;
+  }
+
+  .text {
+    font-size: 18px;
+    font-weight: bolder;
+    pointer-events: none;
+    transition: all 0.2s;
+    top: 0;
+
+    &::selection {
+      background: none;
+    }
+  }
+}
+
+.icon-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: initial;
+  aspect-ratio: 1;
+
+  &:hover {
+    .icon {
+      scale: 1.1;
+    }
+  }
+
+  &:active {
+    .icon {
+      scale: 0.9;
+    }
+  }
+
+  .icon {
+    width: min(25px, 100%);
+    height: min(25px, 100%);
+    aspect-ratio: 1;
+    object-fit: contain;
+
+    transition: all 0.2s;
+  }
 }
 
 .bolder {

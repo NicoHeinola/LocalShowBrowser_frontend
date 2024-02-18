@@ -106,6 +106,7 @@ nav {
             box-shadow: 0px 0 15px 1px rgba(0, 0, 0, 0.315);
 
             white-space: nowrap;
+            pointer-events: none;
         }
     }
 }
