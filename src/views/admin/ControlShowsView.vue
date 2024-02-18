@@ -13,16 +13,6 @@
           <option v-for="(season, index) in _notAddedShows" :key="'season2' + index" :value="index">{{ season.full_path }}</option>
         </select>
         <button class="button top-alert" @click="e => appendSeason(false)">Choose Template Season</button>
-
-        <!--select class="top-alert" v-model="templateEpisodeIndex">
-          <option :value="null" disabled="disabled" :selected="true">Choose show for episodes</option>
-          <option v-for="(season, index) in _notAddedShows" :key="'season3' + index" :value="index">{{ season.full_path }}</option>
-        </select>
-        <select class="top-alert" v-model="templateSeasonIndexForEpisode">
-          <option :value="null" disabled="disabled" :selected="true">Choose a season</option>
-          <option v-for="(season, index) in seasons" :key="'season4' + index" :value="index">Season {{ season.number }}</option>
-        </select>
-        <button class="button top-alert" @click="e => appendEpisodesToSeason()">Choose Episodes</button-->
       </div>
     </div>
     <div class="control-shows">
