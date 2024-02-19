@@ -1,88 +1,155 @@
 <template>
-  <div class="control-shows-wrapper">
-    <div class="box top-box">
-      <div>
-        <select class="top-alert" v-model="templateShowIndex">
-          <option :value="null" disabled="disabled" :selected="true">Choose a template show</option>
-          <option v-for="(season, index) in _notAddedShows" :key="'season1' + index" :value="index">{{ season.full_path }}</option>
-        </select>
-        <button class="button top-alert" @click="chooseShow">Choose Template Show</button>
-
-        <select class="top-alert" v-model="templateSeasonIndex">
-          <option :value="null" disabled="disabled" :selected="true">Choose a template season</option>
-          <option v-for="(season, index) in _notAddedShows" :key="'season2' + index" :value="index">{{ season.full_path }}</option>
-        </select>
-        <button class="button top-alert" @click="e => appendSeason(false)">Choose Template Season</button>
-      </div>
+  <div class="control-shows">
+    <div class="start-view">
+      <button class="button plus-button choose-template" @click="openTemplateModal()">
+        <div class="plus">
+          <div class="line horizontal"></div>
+          <div class="line vertical"></div>
+        </div>
+        <p class="text">Pick a Template</p>
+      </button>
+      <button class="button plus-button choose-template" @click="openSeasonModal()">
+        <div class="plus">
+          <div class="line horizontal"></div>
+          <div class="line vertical"></div>
+        </div>
+        <p class="text">Add a Season</p>
+      </button>
+      <Modal :show="isTemplateModalOpen" @close="closeTemplateModal()" class="template-modal">
+        <div class="template-shows">
+          <TextInput v-model="templateSearch" placeholder="Search templates" class="search-templates"></TextInput>
+          <div class="template-show" v-for="(season, index) in templateNotAddedShows" :key="'templatet' + index" :value="index" @click="closeTemplateModal(); templateShowIndex = _notAddedShows.indexOf(season); chooseShow()">
+            <div class="text">
+              <p class="name">{{ season.name }}</p>
+              <p class="path">{{ season.full_path }}</p>
+            </div>
+          </div>
+        </div>
+      </Modal>
+      <Modal :show="isSeasonModalOpen" @close="closeSeasonModal()" class="template-modal">
+        <div class="template-shows">
+          <TextInput v-model="seasonSearch" placeholder="Search seasons" class="search-templates"></TextInput>
+          <div class="template-show" v-for="(season, index) in seasonNotAddedShows" :key="'seasont' + index" :value="index" @click="closeSeasonModal(); templateSeasonIndex = _notAddedShows.indexOf(season); appendSeason()">
+            <div class="text">
+              <p class="name">{{ season.name }}</p>
+              <p class="path">{{ season.full_path }}</p>
+            </div>
+          </div>
+        </div>
+      </Modal>
     </div>
-    <div class="control-shows">
-      <div class="box">
-        <h1 class="title">Alternate Titles</h1>
-        <div class="rows-wrapper">
-          <div class="row" v-for="(title, index) in titles" :key="'alttitle' + index">
-            <TextInput v-model="title.title" placeholder="Alternate Title" />
+
+    <div class="section">
+      <h1 class="section-title">Seasons</h1>
+      <button class="button re-order-button" @click="reOrderSeasons()">Re-order seasons</button>
+      <div class="box-view">
+        <div class="box-button" :class="selectedSeasonIndex == index ? 'active extra-options' : ''" v-for="(season, index) in seasons" :key="'season' + index" @click="selectSeason(index)">
+          <p class="text">S{{ season.number }}</p>
+          <div class="options">
+            <div class="option" @click="openSeasonEditModal()">
+              <img class="icon" src="@/assets/images/icons/edit.png">
+            </div>
+            <div class="option" @click="removeSeason(selectedSeasonIndex);">
+              <img class="icon" src="@/assets/images/icons/trashcan.png">
+            </div>
+          </div>
+        </div>
+        <div class="box-button plus-button" @click="addSeason()">
+          <div class="plus">
+            <div class="line horizontal"></div>
+            <div class="line vertical"></div>
+          </div>
+        </div>
+      </div>
+
+      <Modal v-if="hasSelectedSeason" :show="isSeasonEditModalOpen" @close="closeSeasonEditModal()">
+        <div class="edit-modal">
+          <h1 class="season-name">{{ selectedSeason.title ? selectedSeason.title : "Season " }} {{ selectedSeason.number }}</h1>
+          <div class="inputs">
+            <TextInput placeholder="Title" v-model="selectedSeason.title"></TextInput>
+            <TextInput placeholder="Path" v-model="selectedSeason.path"></TextInput>
+            <TextInput placeholder="Number" v-model="selectedSeason.number"></TextInput>
+          </div>
+        </div>
+      </Modal>
+    </div>
+
+    <div class="section">
+      <h1 class="section-title">Episodes</h1>
+      <button class="button re-order-button" @click="reOrderEpisodes()">Re-order episodes</button>
+      <div class="box-view" v-if="hasSelectedSeason">
+        <div class="box-button active extra-options" v-for="(episode, index) in selectedSeason.episodes" :key="'season' + index">
+          <p class="text">EP{{ episode.number }}</p>
+          <div class="options">
+            <div class="option" @click="selectEpisode(index); openEpisodeEditModal()">
+              <img class="icon" src="@/assets/images/icons/edit.png">
+            </div>
+            <div class="option" @click="removeEpisode(selectedSeasonIndex, index);">
+              <img class="icon" src="@/assets/images/icons/trashcan.png">
+            </div>
+          </div>
+        </div>
+        <div class="box-button plus-button" @click="addEpisode(selectedSeasonIndex)">
+          <div class="plus">
+            <div class="line horizontal"></div>
+            <div class="line vertical"></div>
+          </div>
+        </div>
+      </div>
+
+      <Modal v-if="hasSelectedEpisode" :show="isEpisodeEditModalOpen" @close="closeEpisodeEditModal(); selectedEpisodeIndex = -1;">
+        <div class="edit-modal">
+          <h1 class="episode-name">{{ selectedEpisode.title ? selectedEpisode.title : "Episode " + selectedEpisode.number }}</h1>
+          <div class="inputs">
+            <TextInput placeholder="Title" v-model="selectedEpisode.title"></TextInput>
+            <TextInput placeholder="Filename" v-model="selectedEpisode.filename"></TextInput>
+            <TextInput placeholder="Number" v-model="selectedEpisode.number"></TextInput>
+          </div>
+        </div>
+      </Modal>
+    </div>
+
+    <div class="section show-information">
+      <h1 class="section-title">Show Information</h1>
+      <div class="input-with-icon">
+        <TextInput class="input" placeholder="Name" v-model="title"></TextInput>
+        <button class="icon-button button" @click="openAlternateTitleModal">
+          <img class="icon" src="@/assets/images/icons/addmore.png">
+        </button>
+      </div>
+      <div class="input-with-icon">
+        <TextInput class="input" placeholder="Image URL" v-model="image_url"></TextInput>
+        <a class="icon-button button" target="_blank" :href="'https://www.google.com/search?q=' + title + ' hd cover&tbm=isch&source=lnms'">
+          <img class="icon" src="@/assets/images/icons/openimage.png">
+        </a>
+      </div>
+
+      <Modal :show="isAlternateTitleModalOpen" @close="closeAlternateTitleModal();">
+        <div class="alternate-titles">
+          <div class="alternate-title" v-for="(title, index) in titles" :key="'alttitle' + index">
+            <TextInput class="input" v-model="title.title" :placeholder="'Alternate Title ' + (index + 1)" />
             <button class="button" @click="removeAlternateTitle(index)">Delete</button>
           </div>
-        </div>
-        <div class="bottom">
-          <button class="button" @click="addAlternateTitle">Add Alternate Title</button>
-        </div>
-      </div>
-      <div class="box">
-        <h1 class="title">Add New Show</h1>
-        <TextInput v-model="title" placeholder="Main Title" />
-        <TextInput v-model="image_url" placeholder="Image URL" />
-        <button class="button" @click="showImagePickerModal">Image Picker</button>
-        <div class="bottom">
-          <div class="centered">
-            <AlertBox ref='success' type="success"></AlertBox>
-            <AlertBox ref='warning' type="warning"></AlertBox>
-            <AlertBox ref='error' type="error"></AlertBox>
-          </div>
-          <button class="button" @click="addShow">{{ isEditing ? 'Edit Show' : 'Add Show' }}</button>
-        </div>
-      </div>
-      <div class="box">
-        <h1 class="title">Seasons</h1>
-        <div class="rows-wrapper">
-          <div class="row-grid" v-for="(season, index) in seasons" :key="'season' + index">
-            <h2>Season {{ season.number }}</h2>
-            <TextInput v-model="season.title" placeholder="Season Title" />
-            <TextInput v-model="season.path" placeholder="Path" />
-            <TextInput v-model="season.number" placeholder="Season Number" />
-
-            <div class="row-grid" v-for="(episode, epIndex) in season.episodes" :key="'episode' + index">
-              <br>
-              <h3>Episode {{ episode.number }}</h3>
-              <TextInput v-model="episode.title" placeholder="Episode Title" />
-              <TextInput v-model="episode.filename" placeholder="Filename" />
-              <span class="margin-right">Is Special?</span>
-              <input type="checkbox" v-model="episode.is_special" />
-              <TextInput v-model="episode.number" placeholder="Episode Number" />
-              <button class="button top-alert" @click="removeEpisode(index, epIndex)">Delete Episode</button>
+          <button class="button plus-button" @click="addAlternateTitle()">
+            <div class="plus">
+              <div class="line horizontal"></div>
+              <div class="line vertical"></div>
             </div>
-            <button class="button top-alert" @click="addEpisode(index)">Add Episode</button>
-            <button class="button" @click="removeSeason(index)">Delete Season</button>
-            <hr>
-          </div>
+            <p class="text">Add a Title</p>
+          </button>
         </div>
-        <div class="bottom">
-          <button class="button" @click="addSeason">Add Season</button>
-        </div>
-      </div>
+      </Modal>
     </div>
-    <Modal :show="imagePickerModal" @close="hideImagePickerModal">
-      <ImagePicker @pickedImageWithUrl="setImageUrl" :loading="loadingImages" :imageUrls="$store.getters['show/imageCovers']"></ImagePicker>
-      <br>
-      <TextInput v-model="imageCoverSearchTerm" placeholder="Search Term (Leave empty for default, aka. show title)" />
-      <TextInput v-model="imageCoverAmount" placeholder="Amount of images to get" />
-      <button class="button" @click="loadCoverImages">Search Images</button>
-      <div class="centered">
-        <AlertBox ref='search-success' type="success"></AlertBox>
-        <AlertBox ref='search-warning' type="warning"></AlertBox>
-        <AlertBox ref='search-error' type="error"></AlertBox>
+
+    <div class="add-show-button-wrapper">
+      <div class="alerts">
+        <AlertBox ref='success' type="success"></AlertBox>
+        <AlertBox ref='warning' type="warning"></AlertBox>
+        <AlertBox ref='error' type="error"></AlertBox>
       </div>
-    </Modal>
+      <button class="button add-show-button" :class="addingShowLoadingClass" @click="addShow()">Add Show</button>
+      <LoadingAnimation class="adding-show-loading-animation" :class="addingShowLoadingClass"></LoadingAnimation>
+    </div>
   </div>
 </template>
 
@@ -90,7 +157,7 @@
 import AlertBox from '@/components/AlertBox.vue';
 import TextInput from '@/components/inputs/TextInput.vue';
 import Modal from '@/components/Modal.vue';
-import ImagePicker from '@/components/ImagePicker.vue';
+import LoadingAnimation from '@/components/LoadingAnimation.vue';
 
 export default {
   name: 'ControlShowsView',
@@ -98,7 +165,7 @@ export default {
     TextInput,
     AlertBox,
     Modal,
-    ImagePicker
+    LoadingAnimation
   },
   props: {
     isEditing: { default: false, required: false },
@@ -107,34 +174,6 @@ export default {
   methods: {
     setImageUrl(url) {
       this.image_url = url
-    },
-    loadCoverImages() {
-      let term = this.imageCoverSearchTerm;
-      if (!term) {
-        term = this.title;
-      }
-
-      let warning = ''
-      if (term == '' || !term) warning = 'Remember to either add a search term or show title!';
-      else if (!this.imageCoverAmount) warning = 'Remember to add an amount!';
-      else if (this.loadingImages) warning = 'Wait until images have been loaded!';
-
-      if (warning) {
-        this.$refs['search-warning'].timeout(4000, warning)
-        return;
-      }
-
-      term += ' Cover'; // Searches covers now
-
-      this.loadingImages = true;
-      this.$store.dispatch("show/suggestCovers", { "searchTerm": term, "amount": this.imageCoverAmount }).then(response => {
-        this.$refs['search-success'].timeout(4000, 'Found Images Successfully!')
-      }).catch(e => {
-        let error = (e && e.response && e.response.data.error) ? e.response.data.error : 'There was an unkown error while searching covers!'
-        this.$refs['search-error'].timeout(4000, error);
-      }).finally(() => {
-        this.loadingImages = false;
-      });
     },
     showImagePickerModal() {
       this.imagePickerModal = true;
@@ -150,9 +189,12 @@ export default {
       if (!show) return;
       let title = show.name
       this.title = title;
+      this.titles = [];
       this.seasons = [];
+      this.image_url = "";
 
       this.appendSeason(show)
+      this.selectedSeasonIndex = 0;
     },
 
     appendSeason(show) {
@@ -208,6 +250,7 @@ export default {
     },
     removeSeason(index) {
       this.seasons.splice(index, 1)
+      this.selectedSeasonIndex = -1;
     },
     addEpisode(seasonIndex) {
       this.seasons[seasonIndex].episodes.push({ is_special: false, title: "", filename: "", number: '' + (this.seasons[seasonIndex].episodes.length + 1) })
@@ -218,6 +261,8 @@ export default {
     addShow() {
       if (!this.validate()) return;
 
+      this.addingShow = true;
+
       let route = this.isEditing ? 'show/editShow' : 'show/addShow';
 
       this.$store.dispatch(route, {
@@ -227,6 +272,7 @@ export default {
         seasons: this.seasons,
         id: this.show ? this.show.id : null
       }).then(response => {
+        this.addingShow = false;
         this.$store.dispatch('show/getNotAddedShows');
 
         if (this.isEditing) {
@@ -236,6 +282,7 @@ export default {
           this.clearForm()
         }
       }).catch(e => {
+        this.addingShow = false;
         let error = "";
         if (this.isEditing) error = (e && e.response.data.error) ? e.response.data.error : 'There was an unkown error while adding show!';
         else if (!this.isEditing) error = (e && e.response.data.error) ? e.response.data.error : 'There was an unkown error while editing show!';
@@ -297,9 +344,93 @@ export default {
       }
       return true;
     },
+
+    reOrderSeasons() {
+      this.seasons = this.seasons.sort((seasonA, seasonB) => Number(seasonA.number) > Number(seasonB.number));
+      this.selectedSeasonIndex = -1;
+    },
+    reOrderEpisodes() {
+      if (!this.hasSelectedSeason) {
+        return;
+      }
+
+      this.selectedSeason.episodes = this.selectedSeason.episodes.sort((episodeA, episodesB) => Number(episodeA.number) > Number(episodesB.number));
+
+      this.selectedEpisodeIndex = -1;
+    },
+
+    closeTemplateModal() {
+      this.isTemplateModalOpen = false;
+    },
+    openTemplateModal() {
+      this.isTemplateModalOpen = true;
+    },
+
+    closeSeasonModal() {
+      this.isSeasonModalOpen = false;
+    },
+    openSeasonModal() {
+      this.isSeasonModalOpen = true;
+    },
+    selectSeason(index) {
+      this.selectedSeasonIndex = index;
+    },
+
+    closeSeasonEditModal() {
+      this.isSeasonEditModalOpen = false;
+    },
+    openSeasonEditModal() {
+      this.isSeasonEditModalOpen = true;
+    },
+
+    closeEpisodeEditModal() {
+      this.isEpisodeEditModalOpen = false;
+    },
+
+    selectEpisode(index) {
+      this.selectedEpisodeIndex = index;
+    },
+    openEpisodeEditModal() {
+      this.isEpisodeEditModalOpen = true;
+    },
+
+    closeAlternateTitleModal() {
+      this.isAlternateTitleModalOpen = false;
+    },
+    openAlternateTitleModal() {
+      this.isAlternateTitleModalOpen = true;
+    },
+
   },
   computed: {
+    templateNotAddedShows() {
+      return this._notAddedShows.filter(show => show.full_path.toLowerCase().includes(this.templateSearch.toLowerCase()));
+    },
+    seasonNotAddedShows() {
+      return this._notAddedShows.filter(show => show.full_path.toLowerCase().includes(this.seasonSearch.toLowerCase()));
+    },
 
+    selectedSeason() {
+      return this.seasons[this.selectedSeasonIndex];
+    },
+    hasSelectedSeason() {
+      return this.seasons.length > this.selectedSeasonIndex && this.selectedSeasonIndex >= 0;
+    },
+
+    selectedEpisode() {
+      return this.selectedSeason.episodes[this.selectedEpisodeIndex];
+    },
+    hasSelectedEpisode() {
+      if (!this.hasSelectedSeason) {
+        return false;
+      }
+
+      return this.selectedSeason.episodes.length > this.selectedEpisodeIndex && this.selectedEpisodeIndex >= 0;
+    },
+
+    addingShowLoadingClass() {
+      return this.addingShow ? "loading" : "";
+    }
   },
   data() {
     return {
@@ -315,6 +446,22 @@ export default {
       loadingImages: false,
       imageCoverSearchTerm: '',
       imageCoverAmount: "20",
+
+      addingShow: false,
+
+      isTemplateModalOpen: false,
+      templateSearch: "",
+
+      isSeasonModalOpen: false,
+      seasonSearch: "",
+      selectedSeasonIndex: -1,
+
+      isSeasonEditModalOpen: false,
+
+      selectedEpisodeIndex: -1,
+      isEpisodeEditModalOpen: false,
+
+      isAlternateTitleModalOpen: false,
     }
   },
   created() {
@@ -324,100 +471,228 @@ export default {
     this.titles = this.show.alternate_titles;
     this.image_url = this.show.image_url;
     this.title = this.show.title;
+    this.selectedSeasonIndex = 0;
   }
 }
 </script>
 
 <style lang="scss" scoped>
 .control-shows {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  column-gap: 75px;
-  padding: 0 75px;
-  margin-top: calc($margin-top-from-nav / 2);
-}
-
-.margin-right {
-  margin-right: 15px;
-}
-
-.rows-wrapper {
-  max-height: 450px;
-  overflow: auto;
-}
-
-.row {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-
-  .button {
-    width: 80px;
-    min-width: initial;
-  }
-
-  >* {
-    width: 75%;
-  }
-}
-
-.top-alert {
-  margin-bottom: 20px;
-}
-
-.box {
   display: flex;
   flex-direction: column;
-  height: 600px;
-  padding: 20px;
-  background: $main-bg-2;
+  gap: 70px;
+  width: 100%;
+  height: calc(100% - margin-bottom * 2);
+  margin-bottom: 100px;
 
-  &.top-box {
+  .box-view {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
     align-items: center;
-    width: calc(100% - 75px * 2);
-    height: initial;
-    margin: auto;
-    margin-top: $margin-top-from-nav;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
 
-    &>* {
+  .section {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    gap: 20px;
+
+    .section-title {
       width: 100%;
-      max-width: 100%;
+      text-align: center;
+    }
 
-      >* {
+    .re-order-button {
+      width: 200px;
+    }
+  }
+
+  .start-view {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    padding: 100px 0;
+    background: rgba(0, 0, 0, 0.25);
+
+    .choose-template {
+      width: 330px;
+      height: 150px;
+    }
+
+    .template-modal {
+      height: 800px;
+      width: 80%;
+
+      .template-shows {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+
+        .search-templates {
+          width: calc(100% - 40px);
+          margin-bottom: 20px;
+        }
+
+        .template-show {
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+
+          .text {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            height: 50px;
+            background: rgba(0, 0, 0, 0);
+            padding: 0 20px;
+
+            &:hover {
+              cursor: pointer;
+              background: rgba(0, 0, 0, 0.158);
+
+
+              .name {
+                opacity: 0;
+              }
+
+              .path {
+                opacity: 1;
+              }
+            }
+
+            .name {
+              opacity: 1;
+              transition: all 0.2s;
+
+              &::selection {
+                background: none;
+              }
+            }
+
+            .path {
+              position: absolute;
+              top: 50%;
+              transform: translateY(-50%);
+              left: 20px;
+              width: 100%;
+              opacity: 0;
+
+              transition: all 0.2s;
+
+              &::selection {
+                background: none;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .edit-modal {
+    width: 800px;
+    height: 250px;
+    padding: 0 20px;
+    padding-bottom: 90px;
+
+    .season-name {
+      text-align: center;
+    }
+
+    .inputs {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-evenly;
+      height: 100%;
+    }
+
+    * {
+      width: 100%;
+    }
+  }
+
+  .show-information {
+    .input-with-icon {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .input {
+      width: 400px;
+    }
+  }
+
+  .alternate-titles {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 800px;
+    height: 600px;
+    padding: 0 20px;
+    gap: 20px;
+
+    .alternate-title {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
+      gap: 20px;
+
+      .input {
         width: 100%;
       }
     }
   }
-}
 
-.title {
-  text-align: center;
-}
+  .add-show-button-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 
-.text-input {
-  margin-bottom: 20px;
-}
+    .alerts {
+      position: absolute;
+      top: calc(-100% - 20px);
+      z-index: 50;
+    }
 
-.bottom {
-  margin-top: auto;
-}
+    .add-show-button {
+      width: 400px;
+      opacity: 1;
+      transition: all 1s;
 
-.button {
-  width: 100%;
-}
+      &.loading {
+        opacity: 0;
+        pointer-events: none;
+      }
+    }
 
-.centered {
-  margin: 10px auto;
-  grid-column: 2;
+    .adding-show-loading-animation {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      opacity: 0;
+      transform: translate(-50%, -50%);
+      transition: all 1s;
+      pointer-events: none;
 
-  >* {
-    margin-top: 10px;
+      &.loading {
+        opacity: 1;
+      }
+    }
   }
-}
-
-hr {
-  margin: 25px 0;
-  border-color: red;
-  border-style: dashed;
 }
 </style>

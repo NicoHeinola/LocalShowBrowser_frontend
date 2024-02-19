@@ -23,7 +23,7 @@ export default {
         }
     },
     created() {
-        this.image = this.heroImage ? this.heroImage : require("@/assets/images/wallpaper-1.jpg");
+        this.image = this.heroImage ? this.heroImage : require("@/assets/images/wallpaper-1.png");
     },
 }
 </script>

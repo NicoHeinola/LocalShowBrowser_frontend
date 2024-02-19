@@ -1,11 +1,13 @@
 <template>
   <div class="main-app">
     <Navigation></Navigation>
-    <RouterView v-slot="{ Component }">
-      <Transition name="nav-transition" mode="out-in">
-        <component :is="Component"></component>
-      </Transition>
-    </RouterView>
+    <div class="content">
+      <RouterView v-slot="{ Component }">
+        <Transition name="nav-transition" mode="out-in">
+          <component :is="Component"></component>
+        </Transition>
+      </RouterView>
+    </div>
   </div>
 </template>
 
@@ -24,7 +26,13 @@ export default {
 <style lang="scss" scoped>
 .main-app {
   width: 100%;
-  height: 100dvh;
+  height: 100vh;
+
+  .content {
+    margin-left: $nav-width;
+    width: calc(100% - $nav-width);
+    height: 100%;
+  }
 }
 
 .nav-transition-enter-active,

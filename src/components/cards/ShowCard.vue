@@ -116,11 +116,11 @@ export default {
     border-radius: 15px;
     /*background: rgb(255, 255, 255);*/
     margin-right: 0;
-    transition: all 0.25s ease-out;
     box-shadow: 5px 5px 15px 1px rgba(0, 0, 0, 0.664);
     color: $main-text-color;
     bottom: 0;
     opacity: 0.9;
+    transition: all 0.25s ease-out;
 
     &:not(.active):hover {
         opacity: 1;

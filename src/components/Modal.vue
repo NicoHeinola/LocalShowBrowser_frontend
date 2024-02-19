@@ -1,9 +1,10 @@
 <template>
-    <div v-if="show" class="modal">
+    <div class="modal" :class="showClass">
+        <div class="darkened-bg"></div>
         <div class="items">
             <slot></slot>
-            <div class="close-icon" @click="close"></div>
         </div>
+        <div class="close-icon" @click="close"></div>
     </div>
 </template>
   
@@ -22,11 +23,35 @@ export default {
     },
     methods: {
         close() {
-            this.$emit('close')
+            this.$emit('close');
+            this.enableBodyScroll();
+        },
+        disableBodyScroll() {
+            document.body.style.overflow = 'hidden';
+        },
+        enableBodyScroll() {
+            document.body.style.overflow = '';
+        }
+    },
+    computed: {
+        showClass() {
+            return this.show ? "show" : "hide";
         }
     },
     created() {
+        if (this.show) {
+            this.disableBodyScroll();
+        }
     },
+    watch: {
+        show(newValue) {
+            if (newValue) {
+                this.disableBodyScroll();
+            } else {
+                this.enableBodyScroll();
+            }
+        }
+    }
 }
 </script>
   
@@ -36,36 +61,52 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: 100;
+
+    top: 50%;
+    left: calc(50% + $nav-width);
+    transform: translate(calc(-50% - $nav-width / 2), -50%);
+
+    z-index: 150;
+    transition: all 0.2s;
+
+    .darkened-bg {
+        position: fixed;
+        width: calc(100vw + $nav-width);
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.603);
+    }
+
+    &.hide {
+        opacity: 0;
+        pointer-events: none;
+    }
 
     .items {
         position: relative;
-        width: 800px;
-        height: 90%;
-        padding: 50px;
+        width: 100%;
+        height: 100%;
         background: $modal-background;
         box-shadow: 0 0 20px 2px black;
         border-radius: 5px;
+        padding-top: 60px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
 
-        .close-icon {
-            --size: 25px;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: var(--size);
-            height: var(--size);
-            background: url('@/assets/images/icons/close.png');
-            background-size: contain;
-            cursor: pointer;
-            transition: all 0.2s;
+    .close-icon {
+        --size: 25px;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: var(--size);
+        height: var(--size);
+        background: url('@/assets/images/icons/close.png');
+        background-size: contain;
+        cursor: pointer;
+        transition: all 0.2s;
 
-            &:hover {
-                transform: rotateZ(90deg);
-            }
+        &:hover {
+            transform: rotateZ(90deg);
         }
     }
 }

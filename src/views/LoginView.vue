@@ -1,8 +1,8 @@
 <template>
   <div class="login">
     <h1 class="title">Login</h1>
-    <TextInput v-model="username" placeholder="Username" />
-    <TextInput v-model="password" placeholder="Password" />
+    <TextInput v-model="username" @keyup.enter="login()" placeholder="Username" />
+    <TextInput v-model="password" @keyup.enter="login()" placeholder="Password" />
     <button class="button" @click="login">Login</button>
     <AlertBox ref='success' type="success"></AlertBox>
     <AlertBox ref='warning' type="warning"></AlertBox>

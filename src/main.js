@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
-import "@/assets/styles/scss/_global.scss";
+import "@/assets/styles/scss/global.scss";
 import axios from 'axios';
 import vuexmixin from './store/vuexmixin';
 
