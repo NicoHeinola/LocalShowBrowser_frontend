@@ -147,7 +147,8 @@
         <AlertBox ref='warning' type="warning"></AlertBox>
         <AlertBox ref='error' type="error"></AlertBox>
       </div>
-      <button class="button add-show-button" @click="addShow()">Add Show</button>
+      <button class="button add-show-button" :class="addingShowLoadingClass" @click="addShow()">Add Show</button>
+      <LoadingAnimation class="adding-show-loading-animation" :class="addingShowLoadingClass"></LoadingAnimation>
     </div>
   </div>
 </template>
@@ -156,6 +157,7 @@
 import AlertBox from '@/components/AlertBox.vue';
 import TextInput from '@/components/inputs/TextInput.vue';
 import Modal from '@/components/Modal.vue';
+import LoadingAnimation from '@/components/LoadingAnimation.vue';
 
 export default {
   name: 'ControlShowsView',
@@ -163,6 +165,7 @@ export default {
     TextInput,
     AlertBox,
     Modal,
+    LoadingAnimation
   },
   props: {
     isEditing: { default: false, required: false },
@@ -258,6 +261,8 @@ export default {
     addShow() {
       if (!this.validate()) return;
 
+      this.addingShow = true;
+
       let route = this.isEditing ? 'show/editShow' : 'show/addShow';
 
       this.$store.dispatch(route, {
@@ -267,6 +272,7 @@ export default {
         seasons: this.seasons,
         id: this.show ? this.show.id : null
       }).then(response => {
+        this.addingShow = false;
         this.$store.dispatch('show/getNotAddedShows');
 
         if (this.isEditing) {
@@ -276,6 +282,7 @@ export default {
           this.clearForm()
         }
       }).catch(e => {
+        this.addingShow = false;
         let error = "";
         if (this.isEditing) error = (e && e.response.data.error) ? e.response.data.error : 'There was an unkown error while adding show!';
         else if (!this.isEditing) error = (e && e.response.data.error) ? e.response.data.error : 'There was an unkown error while editing show!';
@@ -420,6 +427,10 @@ export default {
 
       return this.selectedSeason.episodes.length > this.selectedEpisodeIndex && this.selectedEpisodeIndex >= 0;
     },
+
+    addingShowLoadingClass() {
+      return this.addingShow ? "loading" : "";
+    }
   },
   data() {
     return {
@@ -435,6 +446,8 @@ export default {
       loadingImages: false,
       imageCoverSearchTerm: '',
       imageCoverAmount: "20",
+
+      addingShow: false,
 
       isTemplateModalOpen: false,
       templateSearch: "",
@@ -656,6 +669,27 @@ export default {
 
     .add-show-button {
       width: 400px;
+      opacity: 1;
+      transition: all 1s;
+
+      &.loading {
+        opacity: 0;
+        pointer-events: none;
+      }
+    }
+
+    .adding-show-loading-animation {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      opacity: 0;
+      transform: translate(-50%, -50%);
+      transition: all 1s;
+      pointer-events: none;
+
+      &.loading {
+        opacity: 1;
+      }
     }
   }
 }
