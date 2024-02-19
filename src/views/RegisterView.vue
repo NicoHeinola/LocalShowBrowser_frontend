@@ -1,8 +1,8 @@
 <template>
   <div class="register">
     <h1 class="title">Register</h1>
-    <TextInput v-model="username" placeholder="Username" />
-    <TextInput v-model="password" placeholder="Password" />
+    <TextInput v-model="username" @keyup.enter="register()" placeholder="Username" />
+    <TextInput v-model="password" @keyup.enter="register()" placeholder="Password" />
     <button class="button" @click="register">Register</button>
     <AlertBox ref='success' type="success"></AlertBox>
     <AlertBox ref='warning' type="warning"></AlertBox>

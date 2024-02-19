@@ -1,6 +1,7 @@
 <template>
   <div class="shows-view">
-    <HeroBanner :heroImage="require('@/assets/images/wallpaper-2.jpg')">
+    <HeroBanner :heroImage="require('@/assets/images/wallpaper-2.png')">
+      <div class="gradient"></div>
       <div class="items">
         <div class="bg"></div>
         <h1>Search & Filtering</h1>
@@ -82,6 +83,16 @@ export default {
   opacity: 0
 }
 
+.gradient {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgb(0, 0, 0);
+  background: linear-gradient(180deg, #0f191f00 0%, #0f191f63 60%, #0f191f 100%);
+  pointer-events: none;
+}
+
 .items {
   position: relative;
   display: flex;
@@ -94,16 +105,20 @@ export default {
   color: $main-text-color;
   padding: 20px;
 
+
   .bg {
     position: absolute;
     width: 100%;
     height: 100%;
     left: 0;
     top: 0;
+
     background: $main-bg-2;
     opacity: 0.5;
-    pointer-events: none;
+    border-radius: 10px;
+
     z-index: 0 !important;
+    pointer-events: none;
   }
 
   >* {

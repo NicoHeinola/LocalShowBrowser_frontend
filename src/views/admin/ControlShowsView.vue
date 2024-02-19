@@ -18,7 +18,7 @@
       <Modal :show="isTemplateModalOpen" @close="closeTemplateModal()" class="template-modal">
         <div class="template-shows">
           <TextInput v-model="templateSearch" placeholder="Search templates" class="search-templates"></TextInput>
-          <div class="template-show" v-for="(season, index) in templateNotAddedShows" :key="'templatet' + index" :value="index" @click="closeTemplateModal(); templateShowIndex = index; chooseShow()">
+          <div class="template-show" v-for="(season, index) in templateNotAddedShows" :key="'templatet' + index" :value="index" @click="closeTemplateModal(); templateShowIndex = _notAddedShows.indexOf(season); chooseShow()">
             <div class="text">
               <p class="name">{{ season.name }}</p>
               <p class="path">{{ season.full_path }}</p>
@@ -29,7 +29,7 @@
       <Modal :show="isSeasonModalOpen" @close="closeSeasonModal()" class="template-modal">
         <div class="template-shows">
           <TextInput v-model="seasonSearch" placeholder="Search seasons" class="search-templates"></TextInput>
-          <div class="template-show" v-for="(season, index) in seasonNotAddedShows" :key="'seasont' + index" :value="index" @click="closeSeasonModal(); templateSeasonIndex = index; appendSeason()">
+          <div class="template-show" v-for="(season, index) in seasonNotAddedShows" :key="'seasont' + index" :value="index" @click="closeSeasonModal(); templateSeasonIndex = _notAddedShows.indexOf(season); appendSeason()">
             <div class="text">
               <p class="name">{{ season.name }}</p>
               <p class="path">{{ season.full_path }}</p>
@@ -471,6 +471,7 @@ export default {
     this.titles = this.show.alternate_titles;
     this.image_url = this.show.image_url;
     this.title = this.show.title;
+    this.selectedSeasonIndex = 0;
   }
 }
 </script>
@@ -515,7 +516,8 @@ export default {
     justify-content: center;
     align-items: center;
     gap: 50px;
-    margin-top: 100px;
+    padding: 100px 0;
+    background: rgba(0, 0, 0, 0.25);
 
     .choose-template {
       width: 330px;

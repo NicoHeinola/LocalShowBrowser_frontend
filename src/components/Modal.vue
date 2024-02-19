@@ -23,7 +23,14 @@ export default {
     },
     methods: {
         close() {
-            this.$emit('close')
+            this.$emit('close');
+            this.enableBodyScroll();
+        },
+        disableBodyScroll() {
+            document.body.style.overflow = 'hidden';
+        },
+        enableBodyScroll() {
+            document.body.style.overflow = '';
         }
     },
     computed: {
@@ -32,7 +39,19 @@ export default {
         }
     },
     created() {
+        if (this.show) {
+            this.disableBodyScroll();
+        }
     },
+    watch: {
+        show(newValue) {
+            if (newValue) {
+                this.disableBodyScroll();
+            } else {
+                this.enableBodyScroll();
+            }
+        }
+    }
 }
 </script>
   
@@ -54,7 +73,7 @@ export default {
         position: fixed;
         width: calc(100vw + $nav-width);
         height: 100vh;
-        background: rgba(0, 0, 0, 0.486);
+        background: rgba(0, 0, 0, 0.603);
     }
 
     &.hide {
