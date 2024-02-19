@@ -1,8 +1,8 @@
 <template>
     <div class="hero-banner">
-        <img class="hero" :src="image">
-        <div class="gradient"></div>
-        <div class="items">
+        <img class="hero-t" :src="image">
+        <div class="hero-gradient"></div>
+        <div class="hero-items">
             <slot></slot>
         </div>
     </div>
@@ -32,10 +32,9 @@ export default {
 .hero-banner {
     position: relative;
     width: 100%;
-    height: 650px;
     background: rgb(26, 26, 26);
 
-    .hero {
+    .hero-t {
         position: absolute;
         width: 100%;
         height: 100%;
@@ -45,7 +44,7 @@ export default {
         filter: brightness(70%);
     }
 
-    .gradient {
+    .hero-gradient {
         position: absolute;
         top: 0;
         width: 100%;
@@ -54,7 +53,7 @@ export default {
         background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.74) 100%);
     }
 
-    .items {
+    .hero-items {
         position: relative;
         width: 100%;
         height: 100%;

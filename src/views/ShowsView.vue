@@ -1,6 +1,6 @@
 <template>
   <div class="shows-view">
-    <HeroBanner :heroImage="require('@/assets/images/wallpaper-2.png')">
+    <HeroBanner class="show-banner" :heroImage="require('@/assets/images/wallpaper-2.png')">
       <div class="gradient"></div>
       <div class="items">
         <div class="bg"></div>
@@ -81,6 +81,10 @@ export default {
 .show-appear,
 .show-appear-active {
   opacity: 0
+}
+
+.show-banner {
+  height: 650px;
 }
 
 .gradient {
