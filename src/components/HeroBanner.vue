@@ -1,5 +1,5 @@
 <template>
-    <div class="banner">
+    <div class="hero-banner">
         <img class="hero" :src="image">
         <div class="gradient"></div>
         <div class="items">
@@ -29,7 +29,7 @@ export default {
 </script>
   
 <style lang="scss" scoped>
-.banner {
+.hero-banner {
     position: relative;
     width: 100%;
     height: 650px;

@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <HeroBanner :heroImage="require('@/assets/images/wallpaper-1.png')">
+    <HeroBanner class="home-banner" :heroImage="require('@/assets/images/wallpaper-1.png')">
       <RainEffect class="rain" />
       <div class="gradient"></div>
       <div class="card-container">
@@ -76,7 +76,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.banner {
+.home-banner {
   position: relative;
   width: 100%;
   height: 100vh;
