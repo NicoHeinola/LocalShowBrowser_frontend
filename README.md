@@ -1,4 +1,5 @@
-# frontend
+# About this project
+With this website project you can watch any shows or movies on your harddrive with ease. No need to go through hundreds of folders of movies just to find that one specific movie. All you have to do is host this website locally with the backend. 
 
 ## Project setup
 ```
@@ -14,6 +15,3 @@ npm run serve
 ```
 npm run build
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
