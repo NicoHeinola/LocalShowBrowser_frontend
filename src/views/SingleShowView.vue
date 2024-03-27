@@ -8,8 +8,8 @@
           <div class="buttons" v-if="_isAdmin">
             <button class="button" @click="watchSeason()" :disabled="selectedSeason === null">Watch Season (VLC)</button>
             <button class="button" @click="watchEpisode()" :disabled="selectedEpisode === null">Watch Episode (VLC)</button>
-            <button class="button" @click="generateSelectedSeasonStreamFiles()" :disabled="selectedSeason === null">Generate Stream Files For Season (TODO)</button>
-            <button class="button" @click="generateSelectedEpisodeStreamFiles()" :disabled="selectedEpisode === null || currentEpisodeConversionStatus != 'not-generated'">Generate Stream Files For Episode (TODO)</button>
+            <button class="button" @click="generateSelectedSeasonStreamFiles()" :disabled="selectedSeason === null">Generate Stream Files For Season</button>
+            <button class="button" @click="generateSelectedEpisodeStreamFiles()" :disabled="selectedEpisode === null || currentEpisodeConversionStatus != 'not-generated'">Generate Stream Files For Episode</button>
           </div>
         </div>
       </div>
