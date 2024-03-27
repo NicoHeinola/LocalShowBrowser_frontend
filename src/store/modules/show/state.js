@@ -5,4 +5,5 @@ export default {
     show: null,
     notAddedShows: [],
     imageCovers: [],
+    currentVideoPath: "",
 }

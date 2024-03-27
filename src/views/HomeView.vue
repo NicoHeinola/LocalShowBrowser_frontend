@@ -6,15 +6,18 @@
       <div class="card-container">
         <LoadingAnimation class="title" v-if="loading"></LoadingAnimation>
         <h1 class="title" v-else-if="_isLoggedIn && latestWatchedShows.length > 0">Lately Watched Shows</h1>
-        <h1 class="title" v-else-if="latestUploadedShows.length > 0">Lately Watched Shows</h1>
+        <h1 class="title" v-else-if="latestUploadedShows.length > 0">Latest Shows</h1>
         <h1 class="title" v-else>No Shows Found</h1>
-        <div class="card-row">
-          <ShowCard @deleted="onDeleteShow" v-for="show in latestWatchedShows" :key="'latest-show-' + show.id" :show="show" />
+        <div class="card-row" v-if="_isLoggedIn && latestWatchedShows.length > 0">
+          <ShowCard @deleted="onDeleteShow" v-for="show in latestWatchedShows" :key="'lately-watched-show-' + show.id" :show="show" />
+        </div>
+        <div class="card-row" v-else-if="latestUploadedShows.length > 0">
+          <ShowCard @deleted="onDeleteShow" v-for="show in latestUploadedShows" :key="'lately-uploaded-show-' + show.id" :show="show" />
         </div>
       </div>
     </HeroBanner>
     <div class="card-container" v-if="_isLoggedIn && latestUploadedShows.length > 0 && latestWatchedShows.length > 0">
-      <h1 class="title">Latest uploads</h1>
+      <h1 class="title">Latest Shows</h1>
       <div class="card-row">
         <ShowCard @deleted="onDeleteShow" v-for="show in latestUploadedShows" :key="'latest-show-' + show.id" :show="show" />
       </div>
@@ -40,8 +43,13 @@ export default {
   },
   methods: {
     onDeleteShow() {
+      this.loading = true;
+
       this.updateLatestUploadedShows();
       this.updateLatestWatchedShows();
+
+      this.loading = false;
+
     },
     async updateLatestUploadedShows() {
       await this.$store.dispatch("show/latestUploaded");
@@ -49,6 +57,7 @@ export default {
     },
     async updateLatestWatchedShows() {
       if (!this._isLoggedIn) {
+        this.latestWatchedShows = [];
         return;
       }
 

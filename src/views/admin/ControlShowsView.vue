@@ -135,7 +135,7 @@
               <div class="line horizontal"></div>
               <div class="line vertical"></div>
             </div>
-            <p class="text">Add a Title</p>
+            <p class="text">Add an Alternate Name</p>
           </button>
         </div>
       </Modal>
@@ -147,7 +147,7 @@
         <AlertBox ref='warning' type="warning"></AlertBox>
         <AlertBox ref='error' type="error"></AlertBox>
       </div>
-      <button class="button add-show-button" :class="addingShowLoadingClass" @click="addShow()">Add Show</button>
+      <button class="button add-show-button" :class="addingShowLoadingClass" @click="addShow()">{{ isEditing ? "Edit Show" : "Add Show" }}</button>
       <LoadingAnimation class="adding-show-loading-animation" :class="addingShowLoadingClass"></LoadingAnimation>
     </div>
   </div>

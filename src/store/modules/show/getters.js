@@ -17,4 +17,7 @@ export default {
     imageCovers(state) {
         return state.imageCovers;
     },
+    currentVideoPath(state) {
+        return state.currentVideoPath;
+    }
 }
