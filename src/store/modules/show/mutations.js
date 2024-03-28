@@ -17,4 +17,7 @@ export default {
     SET_IMAGE_COVERS(state, covers) {
         state.imageCovers = covers;
     },
+    SET_CURRENT_VIDEO_PATH(state, currentVideoPath) {
+        state.currentVideoPath = currentVideoPath;
+    },
 }

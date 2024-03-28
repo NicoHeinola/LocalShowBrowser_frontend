@@ -2,7 +2,7 @@ import axios from "axios";
 
 export default {
     isDownloaded({ commit }, params) {
-        return axios.get("/media-player/is-downloaded").then((response) => {
+        return axios.get("download/vlc/is-downloaded").then((response) => {
             commit('SET_MEDIA_PLAYER_DOWNLOADED', response.data)
             return response;
         }).catch(e => {
@@ -11,7 +11,7 @@ export default {
         })
     },
     download({ commit }, params) {
-        return axios.get("/media-player/download").then((response) => {
+        return axios.get("download/vlc/download").then((response) => {
             commit('SET_MEDIA_PLAYER_DOWNLOADED', true)
             return response;
         }).catch(e => {

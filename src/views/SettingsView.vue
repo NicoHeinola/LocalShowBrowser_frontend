@@ -1,10 +1,16 @@
 <template>
   <div class="settings">
-    <div class="media-player-status">
+    <div class="installation-status">
       <h1>Media Player Status</h1>
-      <p class="status-text " :class="downloadStatusClass">{{ downloadStatus }}</p>
-      <LoadingAnimation class="loading-animation" v-if="isDownloading"></LoadingAnimation>
-      <button class="button large" @click="downloadMediaPlayer" :disabled="isDownloaded">Download</button>
+      <p class="status-text " :class="vlcDownloadStatusClass">{{ vlcDownloadStatus }}</p>
+      <LoadingAnimation class="loading-animation" v-if="isVLCDownloading"></LoadingAnimation>
+      <button class="button large" @click="downloadMediaPlayer" :disabled="isVLCDownloaded || isVLCDownloading">Download</button>
+    </div>
+    <div class="installation-status">
+      <h1>FFmpeg Status</h1>
+      <p class="status-text " :class="ffmpegDownloadStatusClass">{{ ffmpegDownloadStatus }}</p>
+      <LoadingAnimation class="loading-animation" v-if="isFFmpegDownloading"></LoadingAnimation>
+      <button class="button large" @click="downloadFFmpeg" :disabled="isFFmpegDownloaded || isFFmpegDownloading">Download</button>
     </div>
     <div class="all-settings">
       <h1 class="title">General Settings</h1>
@@ -43,14 +49,24 @@ export default {
     TextInput
   },
   computed: {
-    downloadStatus() {
+    vlcDownloadStatus() {
       return this.$store.getters['mediaPlayer/isDownloaded'] ? 'Downloaded' : 'Not downloaded';
     },
-    downloadStatusClass() {
+    vlcDownloadStatusClass() {
       return this.$store.getters['mediaPlayer/isDownloaded'] ? 'green' : 'red';
     },
-    isDownloaded() {
+    isVLCDownloaded() {
       return this.$store.getters['mediaPlayer/isDownloaded'];
+    },
+
+    ffmpegDownloadStatus() {
+      return this.$store.getters['ffmpeg/isDownloaded'] ? 'Downloaded' : 'Not downloaded';
+    },
+    ffmpegDownloadStatusClass() {
+      return this.$store.getters['ffmpeg/isDownloaded'] ? 'green' : 'red';
+    },
+    isFFmpegDownloaded() {
+      return this.$store.getters['ffmpeg/isDownloaded'];
     },
   },
   methods: {
@@ -122,9 +138,14 @@ export default {
       this.getBlacklistedFolders();
     },
     async downloadMediaPlayer() {
-      this.isDownloading = true;
+      this.isVLCDownloading = true;
       await this.$store.dispatch("mediaPlayer/download");
-      this.isDownloading = false;
+      this.isVLCDownloading = false;
+    },
+    async downloadFFmpeg() {
+      this.isFFmpegDownloading = true;
+      await this.$store.dispatch("ffmpeg/download");
+      this.isFFmpegDownloading = false;
     },
     async getSettings() {
       await this.$store.dispatch('setting/getSettings');
@@ -137,12 +158,14 @@ export default {
   },
   created() {
     this.$store.dispatch('mediaPlayer/isDownloaded');
+    this.$store.dispatch('ffmpeg/isDownloaded');
     this.getSettings();
     this.getBlacklistedFolders();
   },
   data() {
     return {
-      isDownloading: false,
+      isVLCDownloading: false,
+      isFFmpegDownloading: false,
       settings: [],
       blacklistedFolders: [],
       newBlacklistedFolderPath: "",
@@ -162,8 +185,9 @@ export default {
 
   min-height: 100%;
   padding: 100px;
+  gap: 40px;
 
-  .media-player-status {
+  .installation-status {
     position: relative;
     background: $main-bg-2;
     width: 470px;
@@ -215,7 +239,6 @@ export default {
   gap: 20px;
   width: 1000px;
   max-width: 100%;
-  margin-top: 30px;
   padding: 20px;
   border-radius: 10px;
 
@@ -247,7 +270,6 @@ export default {
   gap: 20px;
   width: 700px;
   max-width: 100%;
-  margin-top: 30px;
   padding: 20px;
   border-radius: 10px;
 

@@ -52,6 +52,15 @@ export default {
             throw e;
         })
     },
+    getShowVideoPath({ commit }, params) {
+        return axios.get(`/shows/${params.show_id}/${params.season_id}/${params.episode_id}/stream-path`).then((response) => {
+            commit('SET_CURRENT_VIDEO_PATH', response.data);
+            return response;
+        }).catch(e => {
+            commit('SET_CURRENT_VIDEO_PATH', "");
+            return e;
+        })
+    },
     suggestCovers({ commit }, params) {
         let term = (params && params.searchTerm) ? params.searchTerm : '';
         let amount = (params && params.amount) ? params.amount : 10;
@@ -99,6 +108,20 @@ export default {
         let episodeId = params.episodeId;
         let watched = params.watched;
         return axios.post("/shows/" + showId + "/watched-episode", { season_id: seasonId, episode_id: episodeId, watched: watched }).then((response) => {
+            return response;
+        }).catch(e => {
+            throw e;
+        })
+    },
+    generateStreamFiles({ commit }, episodeId) {
+        return axios.post("/shows/" + episodeId + "/generate-stream-files", {}).then((response) => {
+            return response;
+        }).catch(e => {
+            throw e;
+        })
+    },
+    getEpisodeStreamFileStatus({ commit }, episodeId) {
+        return axios.get("/shows/" + episodeId + "/stream-file-status", {}).then((response) => {
             return response;
         }).catch(e => {
             throw e;
